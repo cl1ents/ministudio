@@ -40,9 +40,28 @@ class App:
         self.Player = Player(self)
 
     def events(self):
+        moveVector = Vector2(0,0)
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
+            match event.type:
+                case pygame.QUIT:
+                    self.running = False
+                case pygame.KEYDOWN:
+                    match event.key:
+                        case pygame.K_SPACE:
+                            self.Player.jump()
+                        case pygame.K_q:
+                            self.Player.moveVector.x -= 1
+                        case pygame.K_d:
+                            self.Player.moveVector.x += 1
+                        case pygame.K_r:
+                            self.Player.position = self.screenSize/2
+                case pygame.KEYUP:
+                    match event.key:
+                        case pygame.K_q:
+                            self.Player.moveVector.x += 1
+                        case pygame.K_d:
+                            self.Player.moveVector.x -= 1
+                # TODO, make keybinds modular!!
 
     def update(self):
         self.Baseplate.update(self)
@@ -69,7 +88,7 @@ class App:
             # Dump screen
             display.flip()
 
-            self.deltaTime = self.clock.tick(144) / 1000  # limits FPS to 60
+            self.deltaTime = self.clock.tick(200) / 1000  # limits FPS to 60
             self.time += self.deltaTime
 
 if __name__ == "__main__":

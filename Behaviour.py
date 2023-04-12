@@ -7,6 +7,7 @@ class Behaviour:
         self.rotation = 0
         
     def update(self, app):
+        self.velocity *= max(1-app.deltaTime, 0)
         self.position += self.velocity*app.deltaTime
     
     def render(self, app):

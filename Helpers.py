@@ -7,6 +7,9 @@ from math import hypot
 def lerp(a, b, t, easing:EasingBase=LinearInOut):
     return a + (b - a) * easing.func(None, t)
 
+def clamp(num, min_value, max_value):
+   return max(min(num, max_value), min_value)
+
 def raycast(origin: Vector2, target: Vector2, collisions: list, maxsteps=10):
     casting = True
     
