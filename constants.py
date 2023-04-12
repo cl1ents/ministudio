@@ -1,3 +1,5 @@
-import pygame
+from pygame.locals import *
 
-clock = pygame.time.Clock()
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
+WINDOW_FLAGS = RESIZABLE | SHOWN
