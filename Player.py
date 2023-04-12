@@ -25,7 +25,7 @@ class Player(Behaviour):
         self.moveVector = moveVector
 
     def update(self, app):
-        self.velocity.y += 10
+        self.velocity.y += 2000*app.deltaTime
 
         cast = raycast(self.position, self.position+Vector2(0,100), [app.Baseplate.box])
 
@@ -33,9 +33,9 @@ class Player(Behaviour):
             self.velocity.y = min(self.velocity.y, 20)
             self.velocity.y -= 500
         elif cast and self.jumping > self.jumpingCooldown: # Stick to ground
-            self.velocity.y -= self.position.y-(cast[1]-75)
+            self.velocity.y -= (self.position.y-(cast[1]-75)) * 200 * app.deltaTime
         elif cast: # DONT STICK TO GROUND! Push back.
-            self.velocity.y -= 100-(cast[1]-self.position.y)
+            self.velocity.y -= (100-(cast[1]-self.position.y)) * 200 * app.deltaTime
         
         if self.jumping < self.jumpingCooldown:
             print(self.jumping)
