@@ -63,7 +63,7 @@ class Player(PhysicsObject):
         if self.jumping == 0 and floor:
             self.body.apply_impulse_at_local_point((0,500000))
         if floor and self.jumping > self.jumpingCooldown: # Stick to floor
-            self.body.apply_impulse_at_local_point((self.moveVector.x*8000, 0))
+            self.body.apply_impulse_at_local_point((self.moveVector.x*1600000*app.deltaTime, 0))
         else:
             self.body.angular_velocity += -self.moveVector.x*app.deltaTime*50
 
@@ -76,14 +76,13 @@ class Player(PhysicsObject):
         origin = self.body.local_to_world(offset)
         target = self.body.local_to_world(Vec2d(offset.x, -dist))
 
-        seg = app.space.segment_query_first(origin, target, 1, self.mask)
+        seg = app.space.segment_query_first(origin, target, 2, self.mask)
 
         if seg:
             currentVel = self.body.world_to_local(origin+self.body.velocity_at_local_point(offset))
-            self.body.apply_impulse_at_local_point(Vec2d(0, (((2-2*seg.alpha)-1)*30)/app.deltaTime)-currentVel*2, offset)
-            draw.line(app.screen, "Yellow", app.convertCoordinates(origin), app.convertCoordinates((seg.point.x, seg.point.y)), 2)
-            return True
-        return False
+            # print(2/app.deltaTime)
+            self.body.apply_impulse_at_local_point(Vec2d(0, (((2-2*seg.alpha)-1)*1500000)*app.deltaTime)-currentVel*400*app.deltaTime, offset)
+        return seg
 
     def render(self):
         super().render()
