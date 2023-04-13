@@ -89,7 +89,6 @@ class App:
             display.flip()
 
             self.deltaTime = self.clock.tick(FPS) / 1000  # limits FPS to 60
-            print(1/self.deltaTime)
             self.time += self.deltaTime
 
 if __name__ == "__main__":

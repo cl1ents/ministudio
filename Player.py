@@ -38,7 +38,7 @@ class Player(Behaviour):
             self.velocity.y -= (100-(cast[1]-self.position.y)) * 200 * app.deltaTime
         
         if self.jumping < self.jumpingCooldown:
-            print(self.jumping)
+            pass
 
         self.velocity.x += self.moveVector.x * clamp(600 - abs(self.velocity.x), 0, 600*8*app.deltaTime)
 
