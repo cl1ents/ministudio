@@ -22,7 +22,8 @@ class Baseplate:
         self.size = (app.screenSize.x, 50)
         self.box = pymunk.Poly.create_box(self.body, (app.screenSize.x, 50))
         self.box.mass = 1
-        self.box.filter = pymunk.ShapeFilter(categories = PLAYER_CATEGORY)
+        self.box.friction = 1
+        self.box.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
         #self.box.friction = 1
         
         # self.s = pymunk.Segment(self.body, (0, 50), (1920, 50), 10)
@@ -77,6 +78,7 @@ class App:
                             self.Player.moveVector.x += 1
                         case pygame.K_r:
                             self.Player.body.position = self.screenSize.x/2, self.screenSize.y/2
+                            self.Player.body.angle = 0
                         case pygame.K_LSHIFT:
                             print("Crouching for Evan uwu!")
                 case pygame.KEYUP:
@@ -102,7 +104,7 @@ class App:
         
         point = self.convertCoordinates(pygame.mouse.get_pos())
 
-        seg = self.space.segment_query_first(point, (point[0], point[1]-500), 1, pymunk.ShapeFilter(mask=PLAYER_CATEGORY))
+        seg = self.space.segment_query_first(point, (point[0], point[1]-500), 1, pymunk.ShapeFilter(mask=pymunk.ShapeFilter.ALL_MASKS()^PLAYER_CATEGORY))
         
         draw.circle(self.screen, "Yellow", self.convertCoordinates((seg.point.x, seg.point.y)) if seg else self.convertCoordinates((point[0], point[1]-500)), 40)
 

@@ -17,6 +17,8 @@ from pymunk.vec2d import Vec2d
 import math
 
 class Player(PhysicsObject):
+    mask = pymunk.ShapeFilter(mask=pymunk.ShapeFilter.ALL_MASKS()^PLAYER_CATEGORY)
+
     def __init__(self, app):
         super().__init__(app)
         
@@ -25,9 +27,9 @@ class Player(PhysicsObject):
         self.body.mass = 1
         
         self.hoverboard = Poly.create_box(self.body, (100, 20))
-        self.hoverboard.density = 0.1
+        self.hoverboard.density = 0.3
         self.hoverboard.elasticity = 1
-        self.hoverboard.friction = 0
+        self.hoverboard.friction = 1
         self.hoverboard.filter = pymunk.ShapeFilter(categories = PLAYER_CATEGORY)
         
         # Input
@@ -44,26 +46,44 @@ class Player(PhysicsObject):
         app.space.add(self.body, self.hoverboard)
     
     def jump(self):
-        return
         if self.jumping > self.jumpingCooldown:
             self.jumping = 0
 
     def update(self):
         app = self.app
-        # self.body.x += self.moveVector.x * clamp(600 - abs(self.velocity.x), 0, 600*8*app.deltaTime)
-        #self.body.velocity += Vec2d(self.moveVector.x * clamp(600 - abs(self.body.velocity.x), 0, 600*8*app.deltaTime), 0)
-        # self.body.velocity *= Vec2d(max(1-app.deltaTime, 0), 1)
-        self.body.velocity += Vec2d(self.moveVector.x * 600 * 8 * app.deltaTime, 0)
+        
+        
+
+        # Left ray
+        left = self.hoverRay(Vec2d(-30,0), 100-(abs(clamp(self.moveVector.x, -1, 0)))*10)# getPointAtAngle(self.body.position, -self.body.angle-math.pi/2, 30))
+        # Right ray
+        right = self.hoverRay(Vec2d(30,0), 100-(abs(clamp(self.moveVector.x, 0, 1)))*10)
+    
+        floor = left or right
+        if self.jumping == 0 and floor:
+            self.body.apply_impulse_at_local_point((0,500000))
+        if floor and self.jumping > self.jumpingCooldown: # Stick to floor
+            self.body.apply_impulse_at_local_point((self.moveVector.x*8000, 0))
+        else:
+            self.body.angular_velocity += -self.moveVector.x*app.deltaTime*50
+
+        self.jumping += app.deltaTime
         super().update()
 
-    def hoverRay(self, origin):
+    def hoverRay(self, offset, dist=100):
         app = self.app
 
-        target = getPointAtAngle(origin, -self.body.angle+math.pi, 50)
+        origin = self.body.local_to_world(offset)
+        target = self.body.local_to_world(Vec2d(offset.x, -dist))
 
-        eg = app.space.segment_query_first(origin, target, 1, pymunk.ShapeFilter())
+        seg = app.space.segment_query_first(origin, target, 1, self.mask)
 
-        draw.line(app.screen, "Yellow", app.convertCoordinates(origin), app.convertCoordinates(target), 2)
+        if seg:
+            currentVel = self.body.world_to_local(origin+self.body.velocity_at_local_point(offset))
+            self.body.apply_impulse_at_local_point(Vec2d(0, (((2-2*seg.alpha)-1)*30)/app.deltaTime)-currentVel*2, offset)
+            draw.line(app.screen, "Yellow", app.convertCoordinates(origin), app.convertCoordinates((seg.point.x, seg.point.y)), 2)
+            return True
+        return False
 
     def render(self):
         super().render()
@@ -73,11 +93,5 @@ class Player(PhysicsObject):
         self.image = pygame.transform.rotozoom(self.orig_image, math.degrees(self.body.angle), 1)
         
         self.rect = self.image.get_rect(center=self.rect.center)
-        #print(self.rect)
-        #draw.rect(app.screen, "Yellow", self.rect)
+        
         app.screen.blit(self.image, self.rect)
-
-        # Left ray
-        self.hoverRay(getPointAtAngle(self.body.position, -self.body.angle-math.pi/2, 30))
-        # Right ray
-        self.hoverRay(getPointAtAngle(self.body.position, -self.body.angle+math.pi/2, 30))
