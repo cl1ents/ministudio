@@ -10,6 +10,7 @@ def lerp(a, b, t, easing:EasingBase=LinearInOut):
 def clamp(num, min_value, max_value):
    return max(min(num, max_value), min_value)
 
+""" Old raycasting!
 def raycast(origin: Vector2, target: Vector2, collisions: list, maxsteps=10):
     casting = True
     
@@ -28,3 +29,10 @@ def raycast(origin: Vector2, target: Vector2, collisions: list, maxsteps=10):
                 intersection = ray
                 dist = currdist
         return intersection
+"""
+
+def addPoints(a, b):
+    return (a[0]+b[0], a[1]+b[1])
+
+def getPointAtAngle(point=(0,0), angle=0, distance=1):
+    return addPoints(point, (math.sin(angle)*distance, math.cos(angle)*distance))

@@ -9,7 +9,6 @@ from pygame import Vector2
 
 from pymunk import Body
 
-from Helpers import raycast
 from Player import Player
 from constants import *
 import math
@@ -23,6 +22,7 @@ class Baseplate:
         self.size = (app.screenSize.x, 50)
         self.box = pymunk.Poly.create_box(self.body, (app.screenSize.x, 50))
         self.box.mass = 1
+        self.box.filter = pymunk.ShapeFilter(categories = PLAYER_CATEGORY)
         #self.box.friction = 1
         
         # self.s = pymunk.Segment(self.body, (0, 50), (1920, 50), 10)
@@ -54,7 +54,6 @@ class App:
         
         self.surf = pygame.Surface(display.get_window_size())
         self.options = pymunk.pygame_util.DrawOptions(self.surf)
-        
 
         self.deltaTime = 1/FPS
         self.time = 0
@@ -64,7 +63,6 @@ class App:
         self.Player = Player(self)
 
     def events(self):
-        moveVector = Vector2(0,0)
         for event in pygame.event.get():
             match event.type:
                 case pygame.QUIT:
@@ -102,9 +100,11 @@ class App:
         self.Baseplate.render()
         self.Player.render()
         
-        point = pygame.Vector2(pygame.mouse.get_pos())
+        point = self.convertCoordinates(pygame.mouse.get_pos())
+
+        seg = self.space.segment_query_first(point, (point[0], point[1]-500), 1, pymunk.ShapeFilter(mask=PLAYER_CATEGORY))
         
-        # draw.circle(self.screen, "Yellow", raycast(point, point+Vector2(0,500), [self.Baseplate.box]) or point+Vector2(0,500), 40)
+        draw.circle(self.screen, "Yellow", self.convertCoordinates((seg.point.x, seg.point.y)) if seg else self.convertCoordinates((point[0], point[1]-500)), 40)
 
     def run(self):
         while self.running:

@@ -1,6 +1,8 @@
 from PhysicsObject import PhysicsObject
-from Helpers import lerp, raycast, clamp
+from Helpers import lerp, clamp, getPointAtAngle, addPoints
 from Easing import CubicEaseInOut
+
+from constants import *
 
 import pygame
 import pygame.draw as draw
@@ -26,6 +28,7 @@ class Player(PhysicsObject):
         self.hoverboard.density = 0.1
         self.hoverboard.elasticity = 1
         self.hoverboard.friction = 0
+        self.hoverboard.filter = pymunk.ShapeFilter(categories = PLAYER_CATEGORY)
         
         # Input
         self.jumpingCooldown = .1
@@ -49,9 +52,18 @@ class Player(PhysicsObject):
         app = self.app
         # self.body.x += self.moveVector.x * clamp(600 - abs(self.velocity.x), 0, 600*8*app.deltaTime)
         #self.body.velocity += Vec2d(self.moveVector.x * clamp(600 - abs(self.body.velocity.x), 0, 600*8*app.deltaTime), 0)
-        #self.body.velocity *= max(1-app.deltaTime, 0)
+        # self.body.velocity *= Vec2d(max(1-app.deltaTime, 0), 1)
         self.body.velocity += Vec2d(self.moveVector.x * 600 * 8 * app.deltaTime, 0)
         super().update()
+
+    def hoverRay(self, origin):
+        app = self.app
+
+        target = getPointAtAngle(origin, -self.body.angle+math.pi, 50)
+
+        eg = app.space.segment_query_first(origin, target, 1, pymunk.ShapeFilter())
+
+        draw.line(app.screen, "Yellow", app.convertCoordinates(origin), app.convertCoordinates(target), 2)
 
     def render(self):
         super().render()
@@ -64,3 +76,8 @@ class Player(PhysicsObject):
         #print(self.rect)
         #draw.rect(app.screen, "Yellow", self.rect)
         app.screen.blit(self.image, self.rect)
+
+        # Left ray
+        self.hoverRay(getPointAtAngle(self.body.position, -self.body.angle-math.pi/2, 30))
+        # Right ray
+        self.hoverRay(getPointAtAngle(self.body.position, -self.body.angle+math.pi/2, 30))
