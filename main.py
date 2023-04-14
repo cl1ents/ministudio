@@ -86,11 +86,11 @@ class App:
         self.Baseplate.render()
         self.Player.render()
         
-        point = self.convertCoordinates(pygame.mouse.get_pos())
+        #point = self.convertCoordinates(pygame.mouse.get_pos())
 
-        seg = self.space.segment_query_first(point, (point[0], point[1]-500), 1, pymunk.ShapeFilter(mask=pymunk.ShapeFilter.ALL_MASKS()^PLAYER_CATEGORY))
+        #seg = self.space.segment_query_first(point, (point[0], point[1]-500), 1, pymunk.ShapeFilter(mask=pymunk.ShapeFilter.ALL_MASKS()^PLAYER_CATEGORY))
         
-        draw.circle(self.screen, "Yellow", self.convertCoordinates((seg.point.x, seg.point.y)) if seg else self.convertCoordinates((point[0], point[1]-500)), 40)
+        #draw.circle(self.screen, "Yellow", self.convertCoordinates((seg.point.x, seg.point.y)) if seg else self.convertCoordinates((point[0], point[1]-500)), 40)
 
     def run(self):
         while self.running:
