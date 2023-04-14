@@ -10,37 +10,11 @@ from pygame import Vector2
 from pymunk import Body
 
 from Player import Player
+from Baseplate import Baseplate
 from constants import *
 import math
 
-class Baseplate:
-    def __init__(self, app):
-        self.app = app
-        self.body = Body(body_type=Body.STATIC)
-        self.body.position = app.screenSize.x / 2, 25
-
-        self.size = (app.screenSize.x, 50)
-        self.box = pymunk.Poly.create_box(self.body, (app.screenSize.x, 50))
-        self.box.mass = 1
-        self.box.friction = 1
-        self.box.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
-        #self.box.friction = 1
-        
-        # self.s = pymunk.Segment(self.body, (0, 50), (1920, 50), 10)
-        
-        app.space.add(self.body, self.box)
-    
-    def update(self):
-        pass#self.body.position = self.app.screenSize.x/2, 25
-
-    def render(self):
-        draw.rect(self.app.screen, "Blue", self.getRect())
-
-    def getRect(self):
-        x, y = self.app.convertCoordinates((self.body.position[0]-self.size[0]/2, self.body.position[1]+self.size[1]/2))
-        w, h = self.size
-        return pygame.Rect(x, y, w, h)
-
+pointlist = []
 class App:
     def __init__(self):
         pygame.init()
@@ -64,6 +38,7 @@ class App:
         self.Player = Player(self)
 
     def events(self):
+        global pointlist
         for event in pygame.event.get():
             match event.type:
                 case pygame.QUIT:
@@ -77,16 +52,25 @@ class App:
                         case pygame.K_d:
                             self.Player.moveVector.x += 1
                         case pygame.K_r:
-                            self.Player.body.position = self.screenSize.x/2, self.screenSize.y/2
+                            self.Player.body.position = self.convertCoordinates(pygame.mouse.get_pos())
                             self.Player.body.angle = 0
                         case pygame.K_LSHIFT:
-                            print("Crouching for Evan uwu!")
+                            self.Baseplate.clear()
                 case pygame.KEYUP:
                     match event.key:
                         case pygame.K_q:
                             self.Player.moveVector.x += 1
                         case pygame.K_d:
                             self.Player.moveVector.x -= 1
+                case pygame.MOUSEBUTTONDOWN:
+                    print(event)
+                    match event.button:
+                        case 1:
+                            pointlist.append(self.convertCoordinates(pygame.mouse.get_pos()))
+                        case 3:
+                            print(pointlist)
+                            self.Baseplate.createPoly(pointlist)
+                            pointlist = []
                 # TODO, make keybinds modular!!
 
     def convertCoordinates(self, point):
@@ -116,6 +100,10 @@ class App:
             self.events()
             self.update()
             self.render()
+
+            if len(pointlist) > 2:
+                draw.polygon(screen, "Navy", [(self.convertCoordinates(i)) for i in pointlist])
+
             # self.surf.fill("White")
             # self.space.debug_draw(self.options)
             # self.screen.blit(self.surf, (0,0))
