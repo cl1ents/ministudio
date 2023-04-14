@@ -25,6 +25,7 @@ class Player(PhysicsObject):
         # Physics
         self.body.position = app.screenSize.x/2, app.screenSize.y/2
         self.body.mass = 1
+        self.body.moment = .1
         
         self.hoverboard = Poly.create_box(self.body, (100, 20))
         self.hoverboard.density = 0.3
@@ -40,6 +41,7 @@ class Player(PhysicsObject):
         # Render
         self.image = pygame.Surface((100, 20), pygame.SRCALPHA)
         self.image.fill("Red")
+        pygame.draw.rect(self.image, "black", Rect(0,0,5,20))
         self.rect = self.image.get_rect(center=app.convertCoordinates(self.body.position))
         self.orig_image = self.image
         
@@ -55,9 +57,9 @@ class Player(PhysicsObject):
         
 
         # Left ray
-        left = self.hoverRay(Vec2d(-30,0), 100-(abs(clamp(self.moveVector.x, -1, 0)))*10)# getPointAtAngle(self.body.position, -self.body.angle-math.pi/2, 30))
+        left = self.hoverRay(Vec2d(-35,0), 100-(abs(clamp(self.moveVector.x, -1, 0)))*10)# getPointAtAngle(self.body.position, -self.body.angle-math.pi/2, 30))
         # Right ray
-        right = self.hoverRay(Vec2d(30,0), 100-(abs(clamp(self.moveVector.x, 0, 1)))*10)
+        right = self.hoverRay(Vec2d(35,0), 100-(abs(clamp(self.moveVector.x, 0, 1)))*10)
     
         floor = left or right
         if self.jumping == 0 and floor:
