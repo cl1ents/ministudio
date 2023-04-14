@@ -36,6 +36,7 @@ class Player(PhysicsObject):
         # Input
         self.jumpingCooldown = .1
         self.jumping = self.jumpingCooldown
+        self.jumpKey = False
         self.moveVector = Vector2(0,0)
         
         # Render
@@ -47,14 +48,35 @@ class Player(PhysicsObject):
         
         app.space.add(self.body, self.hoverboard)
     
-    def jump(self):
-        if self.jumping > self.jumpingCooldown:
+    def event(self, event):
+        match event.type:
+                case pygame.KEYDOWN:
+                    match event.key:
+                        case pygame.K_SPACE:
+                            self.jump(True)
+                        case pygame.K_q:
+                            self.moveVector.x -= 1
+                        case pygame.K_d:
+                            self.moveVector.x += 1
+                        case pygame.K_r:
+                            self.body.position = self.app.convertCoordinates(pygame.mouse.get_pos())
+                            self.body.angle = 0
+                case pygame.KEYUP:
+                    match event.key:
+                        case pygame.K_SPACE:
+                            self.jump(False)
+                        case pygame.K_q:
+                            self.moveVector.x += 1
+                        case pygame.K_d:
+                            self.moveVector.x -= 1
+
+    def jump(self, state):
+        self.jumpKey = state
+        if self.jumping > self.jumpingCooldown and state:
             self.jumping = 0
 
     def update(self):
         app = self.app
-        
-        
 
         # Left ray
         left = self.hoverRay(Vec2d(-35,0), 100-(abs(clamp(self.moveVector.x, -1, 0)))*10)# getPointAtAngle(self.body.position, -self.body.angle-math.pi/2, 30))

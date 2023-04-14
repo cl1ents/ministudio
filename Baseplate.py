@@ -16,12 +16,26 @@ class Baseplate(PhysicsObject): # SANDBOX!
         self.app.space.add(self.body)
 
         self.polygons = []
+        self.pointList = []
 
         self.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
 
         self.createPoly([(0, 0) ,(0, 50), (1920, 50), (1920, 0)])
-    def update(self):
-        pass#self.body.position = self.app.screenSize.x/2, 25
+
+    def event(self, event):
+        match event.type:
+            case pygame.KEYDOWN:
+                    match event.key:
+                        case pygame.K_LSHIFT:
+                            self.clear()
+            case pygame.MOUSEBUTTONDOWN:
+                match event.button:
+                    case 1:
+                        self.pointList.append(self.app.convertCoordinates(pygame.mouse.get_pos()))
+                    case 3:
+                        print(self.pointList)
+                        self.createPoly(self.pointList)
+                        self.pointList = []
 
     def createPoly(self, pointList):
         if len(pointList) > 2:

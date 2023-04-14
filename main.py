@@ -24,7 +24,6 @@ class App:
 
         self.space = pymunk.Space()
         self.space.gravity = 0, -1000
-        self.space.add()
         self.clock = pygame.time.Clock()
         
         self.surf = pygame.Surface(display.get_window_size())
@@ -39,39 +38,13 @@ class App:
 
     def events(self):
         global pointlist
+        
         for event in pygame.event.get():
             match event.type:
                 case pygame.QUIT:
                     self.running = False
-                case pygame.KEYDOWN:
-                    match event.key:
-                        case pygame.K_SPACE:
-                            self.Player.jump()
-                        case pygame.K_q:
-                            self.Player.moveVector.x -= 1
-                        case pygame.K_d:
-                            self.Player.moveVector.x += 1
-                        case pygame.K_r:
-                            self.Player.body.position = self.convertCoordinates(pygame.mouse.get_pos())
-                            self.Player.body.angle = 0
-                        case pygame.K_LSHIFT:
-                            self.Baseplate.clear()
-                case pygame.KEYUP:
-                    match event.key:
-                        case pygame.K_q:
-                            self.Player.moveVector.x += 1
-                        case pygame.K_d:
-                            self.Player.moveVector.x -= 1
-                case pygame.MOUSEBUTTONDOWN:
-                    print(event)
-                    match event.button:
-                        case 1:
-                            pointlist.append(self.convertCoordinates(pygame.mouse.get_pos()))
-                        case 3:
-                            print(pointlist)
-                            self.Baseplate.createPoly(pointlist)
-                            pointlist = []
-                # TODO, make keybinds modular!!
+            self.Player.event(event)
+            self.Baseplate.event(event)
 
     def convertCoordinates(self, point):
         return point[0], self.screenSize.y-point[1]
@@ -101,8 +74,8 @@ class App:
             self.update()
             self.render()
 
-            if len(pointlist) > 2:
-                draw.polygon(screen, "Navy", [(self.convertCoordinates(i)) for i in pointlist])
+            if len(self.Baseplate.pointList) > 2:
+                draw.polygon(screen, "Navy", [(self.convertCoordinates(i)) for i in self.Baseplate.pointList])
 
             # self.surf.fill("White")
             # self.space.debug_draw(self.options)
