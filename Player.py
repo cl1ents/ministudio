@@ -18,6 +18,7 @@ import math
 
 class Player(PhysicsObject):
     mask = pymunk.ShapeFilter(mask=pymunk.ShapeFilter.ALL_MASKS()^PLAYER_CATEGORY)
+    maxAngularVelocity = math.pi*5
 
     def __init__(self, app):
         super().__init__(app)
@@ -27,8 +28,8 @@ class Player(PhysicsObject):
         self.body.mass = 1
         self.body.moment = .1
         
-        self.hoverboard = Poly.create_box(self.body, (100, 20))
-        self.hoverboard.density = 0.3
+        self.hoverboard = Poly.create_box(self.body, (100, 10))
+        self.hoverboard.density = 0.6
         self.hoverboard.elasticity = 1
         self.hoverboard.friction = 1
         self.hoverboard.filter = pymunk.ShapeFilter(categories = PLAYER_CATEGORY)
@@ -40,15 +41,18 @@ class Player(PhysicsObject):
         self.moveVector = Vector2(0,0)
         
         # Render
-        self.image = pygame.Surface((100, 20), pygame.SRCALPHA)
+        self.image = pygame.Surface((100, 10), pygame.SRCALPHA)
         self.image.fill("Red")
-        pygame.draw.rect(self.image, "black", Rect(0,0,5,20))
+        pygame.draw.rect(self.image, "black", Rect(0,0,5,10))
         self.rect = self.image.get_rect(center=app.convertCoordinates(self.body.position))
         self.orig_image = self.image
         
         app.space.add(self.body, self.hoverboard)
     
     def event(self, event):
+        if DEBUG:
+            self.debug_event(event)
+        
         match event.type:
                 case pygame.KEYDOWN:
                     match event.key:
@@ -58,9 +62,6 @@ class Player(PhysicsObject):
                             self.moveVector.x -= 1
                         case pygame.K_d:
                             self.moveVector.x += 1
-                        case pygame.K_r:
-                            self.body.position = self.app.convertCoordinates(pygame.mouse.get_pos())
-                            self.body.angle = 0
                 case pygame.KEYUP:
                     match event.key:
                         case pygame.K_SPACE:
@@ -69,6 +70,17 @@ class Player(PhysicsObject):
                             self.moveVector.x += 1
                         case pygame.K_d:
                             self.moveVector.x -= 1
+
+    def debug_event(self, event):
+        match event.type:
+                case pygame.KEYDOWN:
+                    match event.key:
+                        case pygame.K_r:
+                            self.body.position = self.app.convertCoordinates(pygame.mouse.get_pos())
+                            self.body.angle = 0
+                        case pygame.K_t:
+                            self.body.angular_velocity = 0
+                            self.body.velocity = (0, 0)
 
     def jump(self, state):
         self.jumpKey = state
@@ -89,7 +101,9 @@ class Player(PhysicsObject):
         if floor and self.jumping > self.jumpingCooldown: # Stick to floor
             self.body.apply_impulse_at_local_point((self.moveVector.x*1600000*app.deltaTime, 0))
         else:
-            self.body.angular_velocity += -self.moveVector.x*app.deltaTime*50
+            f = max if -self.moveVector.x > 0 else min
+            if abs(f(self.body.angular_velocity, 0)) < self.maxAngularVelocity:
+                self.body.angular_velocity += min(-self.moveVector.x*app.deltaTime*50, self.maxAngularVelocity-self.body.angular_velocity)
 
         self.jumping += app.deltaTime
         super().update()

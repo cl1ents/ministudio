@@ -18,7 +18,7 @@ pointlist = []
 class App:
     def __init__(self):
         pygame.init()
-
+        
         self.screen = display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_FLAGS)
         self.screenSize = Vector2(display.get_window_size())
 
