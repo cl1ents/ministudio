@@ -7,6 +7,8 @@ import pygame.draw as draw
 from constants import *
 from PhysicsObject import PhysicsObject
 
+from pymunk.autogeometry import convex_decomposition
+
 from random import randint
 
 class Baseplate(PhysicsObject): # SANDBOX!
@@ -39,13 +41,26 @@ class Baseplate(PhysicsObject): # SANDBOX!
 
     def createPoly(self, pointList):
         if len(pointList) > 2:
-            poly = pymunk.Poly(self.body, pointList)
-            poly.mass = 1
-            poly.friction = 1
-            poly.color = (randint(0, 255), randint(0, 255), randint(0, 255))
-            poly.filter = self.filter
-            self.polygons.append(poly)
-            self.app.space.add(poly)
+            pointList.append(pointList[0])
+            pointList.reverse()
+            triangleList = [pointList]
+            try:
+                triangleList = convex_decomposition(pointList, 1)
+            except:
+                try:
+                    pointList.reverse()
+                    triangleList = convex_decomposition(pointList, 1)
+                except:
+                    pass
+
+            for tri in convex_decomposition(pointList, 1):
+                poly = pymunk.Poly(self.body, tri)
+                poly.mass = 1
+                poly.friction = 1
+                poly.color = (randint(0, 255), randint(0, 255), randint(0, 255))
+                poly.filter = self.filter
+                self.polygons.append(poly)
+                self.app.space.add(poly)
 
     def clear(self):
         self.app.space.remove(*self.polygons)
