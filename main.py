@@ -7,7 +7,7 @@ import pygame.draw as draw
 from pygame.locals import *
 from pygame import Vector2
 
-from pymunk import Body
+from pymunk.vec2d import Vec2d
 
 from Player import Player
 from Baseplate import Baseplate
@@ -52,6 +52,7 @@ class App:
     def update(self):
         self.Baseplate.update()
         self.Player.update()
+        # self.Baseplate = Vec2d(self.Player.body.position.x, 0)
         self.space.step(self.deltaTime)
     
     def render(self):
