@@ -37,6 +37,11 @@ class Player(PhysicsObject):
     jumpingCooldown = .1
     airControlCooldown = .02
 
+    dashCooldown = 1
+    dashDuration = .5
+    dashInitialForce = 1300
+    dashForce = 1000000
+
     def __init__(self, app):
         super().__init__(app)
         
@@ -50,7 +55,7 @@ class Player(PhysicsObject):
         self.hoverboard.elasticity = 1
         self.hoverboard.friction = 1
         self.hoverboard.filter = pymunk.ShapeFilter(categories = PLAYER_CATEGORY)
-        
+
         # Input
         self.jumpTick = self.jumpingCooldown
         self.jumpKey = False
@@ -60,7 +65,11 @@ class Player(PhysicsObject):
 
         self.crouch = False
 
-        self.airControlTick = 0
+        self.airControlTick = self.airControlCooldown
+
+        self.dashing = False
+        self.dashTick = self.dashCooldown
+        self.dashDirection = Vec2d(1,0)
         
         # Render
         self.image = pygame.Surface((100, 10), pygame.SRCALPHA)
@@ -80,6 +89,8 @@ class Player(PhysicsObject):
                     match event.key:
                         case pygame.K_SPACE:
                             self.jump(True)
+                        case pygame.K_z:
+                            self.dash()
                         case pygame.K_q:
                             self.moveVector.x -= 1
                         case pygame.K_d:
@@ -117,6 +128,10 @@ class Player(PhysicsObject):
         if self.jumpTick > self.jumpingCooldown and state:
             self.jumpTick = 0
 
+    def dash(self):
+        if self.dashTick > self.dashDuration:
+            self.dashTick = 0
+
     def update(self):
         app = self.app
 
@@ -136,6 +151,10 @@ class Player(PhysicsObject):
         else:
             self.airControlTick += app.deltaTime
 
+        if self.dashTick == 0:
+            self.dashDirection = (app.convertCoordinates(pygame.mouse.get_pos())-self.body.position).normalized()
+            self.body.velocity *= .5
+            self.body.velocity += self.dashDirection*self.dashInitialForce
 
         if self.jumpTick == 0 and floor:
             # self.body.apply_impulse_at_local_point((0,500000))
@@ -166,6 +185,9 @@ class Player(PhysicsObject):
                 self.body.angular_velocity += min(-self.moveVector.x*app.deltaTime*50, self.maxAngularVelocity-self.body.angular_velocity)
 
         self.jumpTick += app.deltaTime
+        self.dashTick += app.deltaTime
+
+        print(int(self.body.velocity.get_dist_sqrd((0,0))))
         super().update()
 
     def hoverRay(self, offset, dist=100):
