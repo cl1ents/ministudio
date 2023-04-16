@@ -4,6 +4,7 @@ import pymunk
 import pygame.display as display
 import pymunk.pygame_util
 import pygame.draw as draw
+import pygame.font as font
 from pygame.locals import *
 from pygame import Vector2
 
@@ -15,6 +16,9 @@ pointlist = []
 class App:
     def __init__(self):
         pygame.init()
+        font.init()
+
+        self.comicsans = font.SysFont("Comic Sans MS", 20)
         
         self.screen = display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_FLAGS)
         self.screenSize = Vector2(display.get_window_size())
