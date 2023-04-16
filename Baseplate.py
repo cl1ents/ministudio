@@ -22,7 +22,7 @@ class Baseplate(PhysicsObject): # SANDBOX!
 
         self.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
 
-        self.createPoly([(0, 0) ,(0, 50), (1920, 50), (1920, 0)])
+        self.createPoly([(0, 0) ,(0, 50), (1000000000, 50), (1000000000, 0)])
 
     def event(self, event):
         match event.type:
