@@ -65,7 +65,7 @@ class Baseplate(PhysicsObject): # SANDBOX!
     def clear(self):
         self.app.space.remove(*self.polygons)
         self.polygons = []
-        self.createPoly([(0, 0) ,(0, 50), (1920, 50), (1920, 0)])
+        self.createPoly([(0, 0) ,(0, 50), (1000000000, 50), (1000000000, 0)])
 
 
     def render(self):

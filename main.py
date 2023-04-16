@@ -7,12 +7,9 @@ import pygame.draw as draw
 from pygame.locals import *
 from pygame import Vector2
 
-from pymunk.vec2d import Vec2d
-
 from Player import Player
 from Baseplate import Baseplate
 from constants import *
-import math
 
 pointlist = []
 class App:
@@ -52,7 +49,6 @@ class App:
     def update(self):
         self.Baseplate.update()
         self.Player.update()
-        # self.Baseplate = Vec2d(self.Player.body.position.x, 0)
         self.space.step(self.deltaTime)
     
     def render(self):
@@ -60,12 +56,6 @@ class App:
         self.Baseplate.render()
         self.Player.render()
         
-        #point = self.convertCoordinates(pygame.mouse.get_pos())
-
-        #seg = self.space.segment_query_first(point, (point[0], point[1]-500), 1, pymunk.ShapeFilter(mask=pymunk.ShapeFilter.ALL_MASKS()^PLAYER_CATEGORY))
-        
-        #draw.circle(self.screen, "Yellow", self.convertCoordinates((seg.point.x, seg.point.y)) if seg else self.convertCoordinates((point[0], point[1]-500)), 40)
-
     def run(self):
         while self.running:
             screen = self.screen
