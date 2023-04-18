@@ -18,13 +18,15 @@ class App:
         pygame.init()
         font.init()
 
+        display.set_caption("Rageon")
+
         self.comicsans = font.SysFont("Comic Sans MS", 20)
         
         self.screen = display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_FLAGS)
         self.screenSize = Vector2(display.get_window_size())
 
         self.space = pymunk.Space()
-        self.space.gravity = 0, -1000
+        self.space.gravity = 0, -1500
         self.clock = pygame.time.Clock()
         
         self.surf = pygame.Surface(display.get_window_size())

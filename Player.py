@@ -25,15 +25,15 @@ def draw_line_round_corners(surf, c, p1, p2, w):
 
 class Player(PhysicsObject):
     mask = pymunk.ShapeFilter(mask=pymunk.ShapeFilter.ALL_MASKS()^PLAYER_CATEGORY)
-    maxAngularVelocity = math.pi*2
+    maxAngularVelocity = math.pi*2.5
 
-    stabilisationForce = 9000
-    stabilisationDampening = Vec2d(1, 5)
+    stabilisationForce = 10000
+    stabilisationDampening = Vec2d(1, 8)
 
     leftRayOffset = Vec2d(-35,0)
     rightRayOffset = Vec2d(35,0)
     
-    rayDistance = 85
+    rayDistance = 90
 
     rayAlpha = 1-50/rayDistance
     rayAlphaCrouch = 1-25/rayDistance
@@ -48,7 +48,9 @@ class Player(PhysicsObject):
 
     dashCooldown = 1
     dashDuration = .5
-    dashVelocity = 1300
+    dashVelocity = 1200
+
+    gravityLimit = 2000
 
     def __init__(self, app):
         super().__init__(app)
@@ -163,11 +165,16 @@ class Player(PhysicsObject):
         left = self.hoverRay(self.leftRayOffset, self.rayDistance)
         # Right ray
         right = self.hoverRay(self.rightRayOffset, self.rayDistance)
+        # Center ray
+        center = self.hoverRay(Vec2d(0,0), self.rayDistance*2)
     
-        if left:
-            self.debugLines.append([self.body.local_to_world(self.leftRayOffset), left.point])
-        if right:
-            self.debugLines.append([self.body.local_to_world(self.rightRayOffset), right.point])
+        if DEBUG:
+            if left:
+                self.debugLines.append([self.body.local_to_world(self.leftRayOffset), left.point])
+            if right:
+                self.debugLines.append([self.body.local_to_world(self.rightRayOffset), right.point])
+            if center:
+                self.debugLines.append([self.body.local_to_world((0,0)), center.point])
 
         floor = left or right
         if floor:
@@ -177,7 +184,7 @@ class Player(PhysicsObject):
 
         if self.dashTick == 0:
             self.dashDirection = (app.convertCoordinates(pygame.mouse.get_pos())-self.body.position).normalized()
-            self.body.velocity *= .5
+            self.body.velocity *= .6
             self.body.velocity += self.dashDirection*self.dashVelocity
 
         if self.jumpTick == 0 and floor:
@@ -195,8 +202,8 @@ class Player(PhysicsObject):
                 origin = self.body.local_to_world(self.leftRayOffset)
                 currentVel = self.body.world_to_local(origin+self.body.velocity_at_local_point(self.leftRayOffset))
                 
-                # localNormal = self.body.world_to_local(self.body.position+left.normal)
-                localNormal = Vec2d(0,1)
+                localNormal = self.body.world_to_local(self.body.position+left.normal)
+                # localNormal = Vec2d(0,1)
                 
                 toApply = localNormal*(((2-2*left.alpha)-(2*dip*distanceMultiplication))*self.stabilisationForce)-Vec2d(currentVel.x*self.stabilisationDampening.x, currentVel.y*self.stabilisationDampening.y)
                 self.body.apply_force_at_local_point(toApply*.4, self.leftRayOffset)
@@ -207,8 +214,8 @@ class Player(PhysicsObject):
                 origin = self.body.local_to_world(self.rightRayOffset)
                 currentVel = self.body.world_to_local(origin+self.body.velocity_at_local_point(self.rightRayOffset))
                 
-                #localNormal = self.body.world_to_local(self.body.position+right.normal)
-                localNormal = Vec2d(0,1)
+                localNormal = self.body.world_to_local(self.body.position+right.normal)
+                # localNormal = Vec2d(0,1)
                 
                 toApply = localNormal*(((2-2*right.alpha)-(2*dip*distanceMultiplication))*self.stabilisationForce)-Vec2d(currentVel.x*self.stabilisationDampening.x, currentVel.y*self.stabilisationDampening.y)
                 self.body.apply_force_at_local_point(toApply*.4, self.rightRayOffset)
@@ -221,6 +228,19 @@ class Player(PhysicsObject):
             f = max if -self.moveVector.x > 0 else min
             if abs(f(self.body.angular_velocity, 0)) < self.maxAngularVelocity:
                 self.body.angular_velocity += min(-self.moveVector.x*app.deltaTime*50, self.maxAngularVelocity-self.body.angular_velocity)
+
+        
+        if right or left:
+            count = (1 if right else 0) + (1 if left else 0)
+            rightAngle = Vec2d(0,1).rotated(self.body.angle).get_angle_between(right.normal) if right else 0
+            leftAngle = Vec2d(0,1).rotated(self.body.angle).get_angle_between(left.normal) if left else 0
+            angle = (rightAngle+leftAngle)/count
+
+            fullAngle = angle # Vec2d(0,1).rotated(self.body.angle).get_angle_between(Vec2d(0,1).rotated(angle))
+            self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.004*(count/2)
+        elif center:
+            fullAngle = Vec2d(0,1).rotated(self.body.angle).get_angle_between(center.normal)
+            self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.001
 
         self.jumpTick += app.deltaTime
         self.dashTick += app.deltaTime
@@ -257,10 +277,12 @@ class Player(PhysicsObject):
             for line in self.debugLines:
                 pygame.draw.line(app.screen, "Red", *[app.convertCoordinates(e) for e in line], 1)
 
-            speed = app.comicsans.render(f"SPEED: {int(self.body.velocity.get_dist_sqrd((0,0)))}", False, (0,0,0))
+            speed = app.comicsans.render(f"SPEED: {int(self.body.velocity.get_distance((0,0)))}", False, (0,0,0))
             # speed = pygame.transform.rotate(speed, math.degrees(self.body.angle))
             rect = speed.get_rect(center=app.convertCoordinates(self.body.local_to_world((0,-25))))
             app.screen.blit(speed, rect)
+            self.gravityLimit = min(self.body.velocity.y, self.gravityLimit)
+            print(self.gravityLimit)
 
         self.rect.center = app.convertCoordinates(self.body.local_to_world((0,75)))
         self.image = pygame.transform.smoothscale(self.orig_image, (175,175))
