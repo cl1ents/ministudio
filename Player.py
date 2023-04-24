@@ -1,6 +1,6 @@
 from PhysicsObject import PhysicsObject
 from Helpers import lerp, clamp, getPointAtAngle, addPoints
-from Easing import CubicEaseInOut
+from easing_functions import CubicEaseInOut
 
 from constants import *
 
@@ -282,7 +282,6 @@ class Player(PhysicsObject):
             rect = speed.get_rect(center=app.convertCoordinates(self.body.local_to_world((0,-25))))
             app.screen.blit(speed, rect)
             self.gravityLimit = min(self.body.velocity.y, self.gravityLimit)
-            print(self.gravityLimit)
 
         self.rect.center = app.convertCoordinates(self.body.local_to_world((0,75)))
         self.image = pygame.transform.smoothscale(self.orig_image, (175,175))

@@ -9,6 +9,7 @@ from pygame.locals import *
 from pygame import Vector2
 
 from Player import Player
+from Enemy import Enemy
 from Baseplate import Baseplate
 from constants import *
 
@@ -38,6 +39,7 @@ class App:
         
         self.Baseplate = Baseplate(self)
         self.Player = Player(self)
+        self.Enemy = Enemy(self, self.Player, (300,200), 64)
 
     def events(self):
         global pointlist
@@ -55,12 +57,14 @@ class App:
     def update(self):
         self.Baseplate.update()
         self.Player.update()
+        self.Enemy.update(self.deltaTime)
         self.space.step(self.deltaTime)
     
     def render(self):
-        self.screen.fill("white")
+        self.screen.fill('white')
         self.Baseplate.render()
         self.Player.render()
+        self.Enemy.render()
         
     def run(self):
         while self.running:

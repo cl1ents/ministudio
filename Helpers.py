@@ -1,10 +1,10 @@
-from Easing import *
+from easing_functions import *
 from pygame import Vector2
 from pygame import Rect
 
 from math import hypot
 
-def lerp(a, b, t, easing:EasingBase=LinearInOut):
+def lerp(a, b, t, easing=LinearInOut):
     return a + (b - a) * easing.func(None, t)
 
 def clamp(num, min_value, max_value):
