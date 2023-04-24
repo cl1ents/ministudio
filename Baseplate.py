@@ -14,6 +14,7 @@ from random import randint
 class Baseplate(PhysicsObject): # SANDBOX!
     def __init__(self, app):
         super().__init__(app)
+        self.x = 0
         self.body.body_type=Body.STATIC
         self.app.space.add(self.body)
 
@@ -21,8 +22,9 @@ class Baseplate(PhysicsObject): # SANDBOX!
         self.pointList = []
 
         self.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
-
-        self.createPoly([(0, 0) ,(0, 50), (1000000000, 50), (1000000000, 0)])
+        self.createPoly([(self.x, 0) ,(self.x, 50), (1280, 50), (1280, 0)])
+        self.createPoly([(self.x + 500, 0) ,(self.x + 500, 50), (1280, 50), (1280, 0)])
+        self.speed = 1
 
     def event(self, event):
         match event.type:
@@ -57,7 +59,6 @@ class Baseplate(PhysicsObject): # SANDBOX!
                 poly = pymunk.Poly(self.body, tri)
                 poly.mass = 1
                 poly.friction = 1
-                poly.color = (randint(0, 255), randint(0, 255), randint(0, 255))
                 poly.filter = self.filter
                 self.polygons.append(poly)
                 self.app.space.add(poly)
@@ -65,12 +66,19 @@ class Baseplate(PhysicsObject): # SANDBOX!
     def clear(self):
         self.app.space.remove(*self.polygons)
         self.polygons = []
-        self.createPoly([(0, 0) ,(0, 50), (1000000000, 50), (1000000000, 0)])
+        self.createPoly([(self.x, 0) ,(self.x, 50), (1280, 50), (1280, 0)])
+        self.createPoly([(self.x + 500, 0) ,(self.x + 500, 50), (1280, 50), (1280, 0)])
 
+    def update(self):
+        super().update()
+        for poly in self.polygons:
+            poly.body.position = poly.body.position.x - self.speed, poly.body.position.y
+        if self.x < -500:
+            self.x = 0
 
     def render(self):
         for poly in self.polygons:
-            draw.polygon(self.app.screen, poly.color, [(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
+            draw.polygon(self.app.screen, (0, 255, 0),[(self.app.convertCoordinates(i, poly.body.position.x, poly.body.position.y)) for i in poly.get_vertices()])
         # draw.rect(self.app.screen, "Blue", self.getRect())
 
     """

@@ -49,8 +49,8 @@ class App:
             self.Player.event(event)
             self.Baseplate.event(event)
 
-    def convertCoordinates(self, point):
-        return point[0], self.screenSize.y-point[1]
+    def convertCoordinates(self, point, x = 0, y = 0):
+        return point[0] + x, self.screenSize.y-point[1] + y
 
     def update(self):
         self.Baseplate.update()
@@ -66,6 +66,7 @@ class App:
         while self.running:
             screen = self.screen
             self.screenSize = Vector2(screen.get_width(), screen.get_height())
+            self.Baseplate.clear()
 
             self.events()
             self.update()
