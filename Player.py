@@ -96,9 +96,17 @@ class Player(PhysicsObject):
         self.BBrect = self.boundingBox.get_rect(center=app.convertCoordinates(self.body.position))
         self.BBorig_image = self.boundingBox
 
-        self.image = pygame.image.load("res/img/idle.png").convert_alpha()
+        self.images = [
+            pygame.image.load("res/img/idle.png").convert_alpha(), 
+            pygame.image.load("res/img/crouch.png").convert_alpha(), 
+            pygame.image.load("res/img/dash.png").convert_alpha(),
+            pygame.image.load("res/img/jump.png").convert_alpha(), 
+            pygame.image.load("res/img/fall.png").convert_alpha()
+        ]
+
+        self.imageIndex = 0
+        self.image = self.images[self.imageIndex]
         self.rect = self.image.get_rect(center=app.convertCoordinates(self.body.local_to_world((0,150))))
-        self.orig_image = self.image
         
         app.space.add(self.body, self.hoverboard, self.chara)
 
@@ -164,6 +172,8 @@ class Player(PhysicsObject):
         app = self.app
         moveVector = self.moveVector
 
+        onGround = True
+
         if self.stunTick < 0:
             self.jumpTick = self.jumpingCooldown+1
             self.dashTick = self.dashCooldown+1
@@ -207,6 +217,7 @@ class Player(PhysicsObject):
 
         if self.jumpTick == 0 and floor:
             # self.body.apply_impulse_at_local_point((0,500000))
+            onGround = False
             if left:
                 localNormal = self.body.world_to_local(self.body.position+left.normal)
                 self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier, (-35,0))
@@ -243,10 +254,12 @@ class Player(PhysicsObject):
             self.body.apply_force_at_local_point(toApply*.3, (0, self.body.center_of_gravity.y*1.4))
             self.body.apply_force_at_local_point(toApply*.7)
         elif self.airControlTick > self.airControlCooldown:
+            onGround = False
             f = max if -moveVector.x > 0 else min
             if abs(f(self.body.angular_velocity, 0)) < self.maxAngularVelocity:
                 self.body.angular_velocity += min(-moveVector.x*app.deltaTime*50, self.maxAngularVelocity-self.body.angular_velocity)
-
+        else:
+            onGround = False
         
         if right or left:
             count = (1 if right else 0) + (1 if left else 0)
@@ -261,6 +274,13 @@ class Player(PhysicsObject):
             self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.001
 
         self.body.velocity = self.body.velocity.x, max(self.body.velocity.y, -self.gravityLimit)
+
+        if onGround:
+            self.imageIndex = 1 if self.crouch else 0
+        else:
+            self.imageIndex = 3 if self.body.velocity.y > 0 else 4
+
+        self.chara.b = (0, 75) if self.crouch else (0, 100)
 
         self.jumpTick += app.deltaTime
         self.dashTick += app.deltaTime
@@ -301,7 +321,7 @@ class Player(PhysicsObject):
             app.screen.blit(speed, rect)
 
         self.rect.center = app.convertCoordinates(self.body.local_to_world((0,75)))
-        self.image = pygame.transform.smoothscale(self.orig_image, (175,175))
+        self.image = pygame.transform.smoothscale(self.images[self.imageIndex], (175,175))
         self.image = pygame.transform.rotate(self.image, math.degrees(self.body.angle))
         
         self.rect = self.image.get_rect(center=self.rect.center)

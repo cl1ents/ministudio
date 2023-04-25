@@ -30,6 +30,8 @@ class Baseplate(PhysicsObject): # SANDBOX!
         [(self.x + 9500 , -50) ,(self.x + 9500 , -25), (self.x + 12000, -25), (self.x + 12000, -50)],
         [(self.x + 10000 , -50) ,(self.x + 10000 , -25), (self.x + 12000, 250), (self.x + 12000, -50)]]
         self.speed = 1
+        
+        self.clear()
 
     def event(self, event):
         match event.type:
