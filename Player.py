@@ -155,6 +155,10 @@ class Player(PhysicsObject):
         if self.dashTick > self.dashDuration:
             self.dashTick = 0
 
+    def stunUwUWillGetRemoved(self):
+        print("STUNNED")
+        self.body.velocity = (0,0)
+
     def update(self):
         app = self.app
 
