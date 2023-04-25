@@ -3,6 +3,8 @@ import pymunk
 
 import pygame.display as display
 import pymunk.pygame_util
+from pymunk.vec2d import Vec2d
+
 import pygame.draw as draw
 import pygame.font as font
 from pygame.locals import *
@@ -24,6 +26,8 @@ class App:
         display.set_caption("Rageon")
 
         self.comicsans = font.SysFont("Comic Sans MS", 20)
+
+        self.cameraOffset = Vec2d(0,0)
         
         self.screen = display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_FLAGS)
         self.screenSize = Vector2(display.get_window_size())
@@ -43,6 +47,7 @@ class App:
         self.Player = Player(self)
         self.Enemy = Enemy(self, self.Player, (300,200), 64)
 
+
         self.saveFile = "Level #1.json"
         self.saveData = Editor.chargeSave(None, self.saveFile)
         if self.saveData: print("Save data successfully charged!")
@@ -57,14 +62,21 @@ class App:
             self.Player.event(event)
             self.Baseplate.event(event)
 
-    def convertCoordinates(self, point, x = 0, y = 0):
-        return point[0] + x, self.screenSize.y-point[1] + y
+    def convertCoordinates(self, point):
+        x, y = point[0], (self.screenSize.y-point[1])
+
+        x -= self.cameraOffset[0]
+        y -= self.screenSize.y-self.cameraOffset[1]
+
+        return x, y
 
     def update(self):
         self.Baseplate.update()
         self.Player.update()
         self.Enemy.update(self.deltaTime)
         self.space.step(self.deltaTime)
+
+        self.cameraOffset = Vec2d(self.Player.body.position.x-self.screenSize.x/2, self.Player.body.position.y+self.screenSize.y*.75)
     
     def render(self):
         self.screen.fill('white')
@@ -76,7 +88,7 @@ class App:
         while self.running:
             screen = self.screen
             self.screenSize = Vector2(screen.get_width(), screen.get_height())
-            self.Baseplate.clear()
+            # self.Baseplate.clear()
 
             self.events()
             self.update()

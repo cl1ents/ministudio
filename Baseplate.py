@@ -55,7 +55,7 @@ class Baseplate(PhysicsObject): # SANDBOX!
                 except:
                     pass
 
-            for tri in convex_decomposition(pointList, 1):
+            for tri in triangleList:
                 poly = pymunk.Poly(self.body, tri)
                 poly.mass = 1
                 poly.friction = 1
@@ -71,14 +71,16 @@ class Baseplate(PhysicsObject): # SANDBOX!
 
     def update(self):
         super().update()
+        """
         for poly in self.polygons:
             poly.body.position = poly.body.position.x - self.speed, poly.body.position.y
         if self.x < -500:
             self.x = 0
+        """
 
     def render(self):
         for poly in self.polygons:
-            draw.polygon(self.app.screen, (0, 255, 0),[(self.app.convertCoordinates(i, poly.body.position.x, poly.body.position.y)) for i in poly.get_vertices()])
+            draw.polygon(self.app.screen, (0, 255, 0),[(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
         # draw.rect(self.app.screen, "Blue", self.getRect())
 
     """
