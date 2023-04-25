@@ -32,7 +32,8 @@ class Bullet(PhysicsObject):
 
     def render(self):
         super().render()
-        self.displaySurf.blit(self.sprite, self.app.convertCoordinates(self.body.position))
+        bound = self.sprite.get_rect(center=self.app.convertCoordinates(self.body.position))
+        self.displaySurf.blit(self.sprite, bound)
 
 class Enemy(PhysicsObject):
     def __init__(self, app, player, position:tuple, size:int):
@@ -71,7 +72,8 @@ class Enemy(PhysicsObject):
 
     def render(self)->None:
         super().render()
-        self.displaySurf.blit(self.sprite, self.app.convertCoordinates(self.body.position))
+        bound = self.sprite.get_rect(center=self.app.convertCoordinates(self.body.position))
+        self.displaySurf.blit(self.sprite, bound)
 
         for bullet in self.bullets:
             bullet.render()
