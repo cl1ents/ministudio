@@ -58,6 +58,7 @@ class Baseplate(PhysicsObject): # SANDBOX!
                 poly.mass = 1
                 poly.friction = 1
                 poly.filter = self.filter
+                poly.collision_type = COLLTYPE_ENV
                 self.polygons.append(poly)
                 self.app.space.add(poly)
 

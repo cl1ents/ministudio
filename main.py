@@ -83,7 +83,7 @@ class App:
             bullet.update()
             if bullet.isOver():
                 self.Bullets.remove(bullet)
-                self.space.remove(bullet.body)
+                self.space.remove(bullet.body, bullet.boundingBox)
 
         self.space.step(self.deltaTime)
 

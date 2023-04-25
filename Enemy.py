@@ -1,6 +1,6 @@
 from PhysicsObject import PhysicsObject
 
-from pymunk import Vec2d, Circle, Body
+from pymunk import Vec2d, Circle, Body, Arbiter
 
 import pygame
 from pygame.image import load
@@ -11,7 +11,7 @@ import pygame.display as display
 import time, math
 
 from constants import *
-from Helpers import lerp, clamp01
+from Helpers import lerp, clamp01, reflect
 from easing_functions import *
 
 class Bullet(PhysicsObject):
@@ -29,12 +29,15 @@ class Bullet(PhysicsObject):
         self.accelerationSpeed = accelerationSpeed
         self.accelerationEase = BackEaseIn
 
-        self.boudingBox = Circle(self.body, size/2)
-        self.boudingBox.collision_type = COLLTYPE_BULLET
-        self.app.space.add(self.body, self.boudingBox)
+        self.boundingBox = Circle(self.body, size/2)
+        self.boundingBox.collision_type = COLLTYPE_BULLET
+        self.app.space.add(self.body, self.boundingBox)
 
-        self.bulletCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_BULLET)
-        self.bulletCollisionHandler.begin = self.playerCollisionBegin
+        self.playerCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_BULLET)
+        self.playerCollisionHandler.begin = self.playerCollisionBegin
+
+        self.envCollisionHandler = app.space.add_collision_handler(COLLTYPE_ENV, COLLTYPE_BULLET)
+        self.envCollisionHandler.pre_solve = self.envCollisionPreSolve
 
     def update(self):
         self.acceleration = clamp01(self.acceleration + self.app.deltaTime * self.accelerationSpeed)
@@ -56,6 +59,11 @@ class Bullet(PhysicsObject):
         self.app.Player.stun(.25)
         self.lifetime = self.maxLifeTime
         return True
+
+    def envCollisionPreSolve(self, arbiter:Arbiter, space, data) ->bool:
+        reflectedOut = reflect(self.direction, arbiter.normal)
+        self.direction = reflectedOut
+        return False
 
 class Enemy(PhysicsObject):
     def __init__(self, app, position:tuple, size:int):
