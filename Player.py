@@ -82,9 +82,10 @@ class Player(PhysicsObject):
 
         self.crouch = False
 
+        self.stunTick = 0
+
         self.airControlTick = self.airControlCooldown
 
-        self.dashing = False
         self.dashTick = self.dashCooldown
         self.dashDirection = Vec2d(1,0)
         
@@ -155,12 +156,17 @@ class Player(PhysicsObject):
         if self.dashTick > self.dashDuration:
             self.dashTick = 0
 
-    def stunUwUWillGetRemoved(self):
-        print("STUNNED")
-        self.body.velocity = (0,0)
+    def stun(self, time):
+        self.body.velocity = 0, self.body.velocity.y
+        self.stunTick = -time
 
     def update(self):
         app = self.app
+
+        if self.stunTick < 0:
+            self.jumpTick = self.jumpingCooldown
+            self.dashTick = self.dashCooldown
+            self.moveVector = Vector2(0,0)
 
         distanceMultiplication = self.rayAlphaCrouch if self.crouch else self.rayAlpha
         jumpMultiplier = self.crouchJumpMultiplier if self.crouch else 1
