@@ -162,11 +162,12 @@ class Player(PhysicsObject):
 
     def update(self):
         app = self.app
+        moveVector = self.moveVector
 
         if self.stunTick < 0:
             self.jumpTick = self.jumpingCooldown+1
             self.dashTick = self.dashCooldown+1
-            self.moveVector = Vector2(0,0)
+            moveVector = Vector2(0,0)
 
         self.stunTick += app.deltaTime
 
@@ -211,7 +212,7 @@ class Player(PhysicsObject):
                 self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier, (35,0))
         elif floor and self.jumpTick > self.jumpingCooldown: # Stick to floor
             if left:
-                dip = 1 + (self.moveVector.x < 0) * .05
+                dip = 1 + (moveVector.x < 0) * .05
 
                 origin = self.body.local_to_world(self.leftRayOffset)
                 currentVel = self.body.world_to_local(origin+self.body.velocity_at_local_point(self.leftRayOffset))
@@ -223,7 +224,7 @@ class Player(PhysicsObject):
                 self.body.apply_force_at_local_point(toApply*.4, self.leftRayOffset)
                 self.body.apply_force_at_local_point(toApply*.6, (self.leftRayOffset.x, self.body.center_of_gravity.y))
             if right:
-                dip = 1 + (self.moveVector.x > 0) * .05
+                dip = 1 + (moveVector.x > 0) * .05
 
                 origin = self.body.local_to_world(self.rightRayOffset)
                 currentVel = self.body.world_to_local(origin+self.body.velocity_at_local_point(self.rightRayOffset))
@@ -235,13 +236,13 @@ class Player(PhysicsObject):
                 self.body.apply_force_at_local_point(toApply*.4, self.rightRayOffset)
                 self.body.apply_force_at_local_point(toApply*.6, (self.rightRayOffset.x, self.body.center_of_gravity.y))
             
-            toApply = Vec2d(self.moveVector.x*self.moveForce, 0)
+            toApply = Vec2d(moveVector.x*self.moveForce, 0)
             self.body.apply_force_at_local_point(toApply*.3, (0, self.body.center_of_gravity.y*1.4))
             self.body.apply_force_at_local_point(toApply*.7)
         elif self.airControlTick > self.airControlCooldown:
-            f = max if -self.moveVector.x > 0 else min
+            f = max if -moveVector.x > 0 else min
             if abs(f(self.body.angular_velocity, 0)) < self.maxAngularVelocity:
-                self.body.angular_velocity += min(-self.moveVector.x*app.deltaTime*50, self.maxAngularVelocity-self.body.angular_velocity)
+                self.body.angular_velocity += min(-moveVector.x*app.deltaTime*50, self.maxAngularVelocity-self.body.angular_velocity)
 
         
         if right or left:
