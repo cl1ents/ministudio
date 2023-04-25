@@ -164,9 +164,11 @@ class Player(PhysicsObject):
         app = self.app
 
         if self.stunTick < 0:
-            self.jumpTick = self.jumpingCooldown
-            self.dashTick = self.dashCooldown
+            self.jumpTick = self.jumpingCooldown+1
+            self.dashTick = self.dashCooldown+1
             self.moveVector = Vector2(0,0)
+
+        self.stunTick += app.deltaTime
 
         distanceMultiplication = self.rayAlphaCrouch if self.crouch else self.rayAlpha
         jumpMultiplier = self.crouchJumpMultiplier if self.crouch else 1
