@@ -44,7 +44,6 @@ class Bullet(PhysicsObject):
 
         super().update()
 
-
     def render(self):
         super().render()
         bound = self.sprite.get_rect(center=self.app.convertCoordinates(self.body.position))
@@ -73,8 +72,7 @@ class Enemy(PhysicsObject):
         self.body.position = position
 
         # Shooting
-        self.bullets = []
-        self.attackRate = 0.2
+        self.attackRate = 0.4
         self.lastAttackTime = time.time() - self.getAttackCooldown()
         self.bulletSpeed = 800
         self.bulletSize = 25
@@ -90,12 +88,6 @@ class Enemy(PhysicsObject):
             self.lastAttackTime = time.time()
             self.shoot()
 
-        for bullet in self.bullets:
-            bullet.update()
-            if bullet.isOver():
-                self.bullets.remove(bullet)
-                self.app.space.remove(bullet.body, bullet.boudingBox)
-
         super().update()
 
     def render(self)->None:
@@ -103,12 +95,11 @@ class Enemy(PhysicsObject):
         bound = self.sprite.get_rect(center=self.app.convertCoordinates(self.body.position))
         self.displaySurf.blit(self.sprite, bound)
 
-        for bullet in self.bullets:
-            bullet.render()
-
     def shoot(self):
         offset = Vec2d(0, 175/2)
         dir = (self.app.Player.body.position + offset - self.body.position).normalized()
         bullet = Bullet(self.app, self.body.position, self.bulletSize, dir, self.bulletSpeed, 1.6)
-        self.bullets.append(bullet)
-        print("New bullet")
+        self.app.Bullets.append(bullet)
+
+    def die(self)->None:
+        print("Enemy died !")

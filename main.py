@@ -45,7 +45,9 @@ class App:
         
         self.Baseplate = Baseplate(self)
         self.Player = Player(self)
-        self.Enemy = Enemy(self, (300,200), 64)
+        self.Enemies = []
+        self.Enemies.append(Enemy(self, (300,200), 64))
+        self.Bullets = []
         self.Camera = Camera(self)
 
         self.saveFile = "Level #1.json"
@@ -73,7 +75,16 @@ class App:
     def update(self):
         self.Baseplate.update()
         self.Player.update()
-        self.Enemy.update()
+
+        for enemy in self.Enemies:
+            enemy.update()
+
+        for bullet in self.Bullets:
+            bullet.update()
+            if bullet.isOver():
+                self.Bullets.remove(bullet)
+                self.space.remove(bullet.body)
+
         self.space.step(self.deltaTime)
 
         self.Camera.update()
@@ -82,7 +93,12 @@ class App:
         self.screen.fill('white')
         self.Baseplate.render()
         self.Player.render()
-        self.Enemy.render()
+
+        for enemy in self.Enemies:
+            enemy.render()
+
+        for bullet in self.Bullets:
+            bullet.render()
         
     def run(self):
         while self.running:
