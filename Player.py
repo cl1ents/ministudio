@@ -65,11 +65,13 @@ class Player(PhysicsObject):
         self.hoverboard.mass = .35
         self.hoverboard.friction = 1
         self.hoverboard.filter = pymunk.ShapeFilter(categories = PLAYER_CATEGORY)
+        self.hoverboard.collision_type = COLLTYPE_PLAYER
 
         self.chara = pymunk.Segment(self.body, (0, 25), (0, 100), 20)
         self.chara.density = 1
         self.chara.mass = .65
         self.chara.filter = pymunk.ShapeFilter(categories = PLAYER_CATEGORY)
+        self.chara.collision_type = COLLTYPE_PLAYER
 
         # Input
         self.jumpTick = self.jumpingCooldown
