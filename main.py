@@ -1,5 +1,4 @@
-import pygame
-import pymunk
+import pygame, pymunk
 
 import pygame.display as display
 import pymunk.pygame_util
@@ -46,9 +45,8 @@ class App:
         
         self.Baseplate = Baseplate(self)
         self.Player = Player(self)
-        self.Enemy = Enemy(self, self.Player, (300,200), 64)
+        self.Enemy = Enemy(self, (300,200), 64)
         self.Camera = Camera(self)
-
 
         self.saveFile = "Level #1.json"
         self.saveData = Editor.chargeSave(None, self.saveFile)
@@ -75,7 +73,7 @@ class App:
     def update(self):
         self.Baseplate.update()
         self.Player.update()
-        self.Enemy.update(self.deltaTime)
+        self.Enemy.update()
         self.space.step(self.deltaTime)
 
         self.Camera.update()
