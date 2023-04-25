@@ -1,8 +1,9 @@
 from easing_functions import *
 from pygame import Vector2
 from pygame import Rect
+from pymunk import Vec2d
 
-from math import hypot
+import math
 
 def lerp(a, b, t, easing=LinearInOut):
     return a + (b - a) * easing.func(None, t)
@@ -12,6 +13,9 @@ def clamp(num, min_value, max_value):
 
 def clamp01(num):
     return clamp(num, 0, 1)
+
+def reflect(inDirection:Vec2d, inNormal:Vec2d):
+    return -2 * inNormal.dot(inDirection) * inNormal + inDirection
 
 """ Old raycasting!
 def raycast(origin: Vector2, target: Vector2, collisions: list, maxsteps=10):

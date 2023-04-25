@@ -1,6 +1,6 @@
 from PhysicsObject import PhysicsObject
 
-from pymunk import Vec2d, Circle, Body
+from pymunk import Vec2d, Circle, Body, Arbiter
 
 import pygame
 from pygame.image import load
@@ -11,7 +11,7 @@ import pygame.display as display
 import time, math
 
 from constants import *
-from Helpers import lerp, clamp01
+from Helpers import lerp, clamp01, reflect
 from easing_functions import *
 
 class Bullet(PhysicsObject):
@@ -29,12 +29,15 @@ class Bullet(PhysicsObject):
         self.accelerationSpeed = accelerationSpeed
         self.accelerationEase = BackEaseIn
 
-        self.boudingBox = Circle(self.body, size/2)
-        self.boudingBox.collision_type = COLLTYPE_BULLET
-        self.app.space.add(self.body, self.boudingBox)
+        self.boundingBox = Circle(self.body, size/2)
+        self.boundingBox.collision_type = COLLTYPE_BULLET
+        self.app.space.add(self.body, self.boundingBox)
 
-        self.bulletCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_BULLET)
-        self.bulletCollisionHandler.begin = self.playerCollisionBegin
+        self.playerCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_BULLET)
+        self.playerCollisionHandler.begin = self.playerCollisionBegin
+
+        self.envCollisionHandler = app.space.add_collision_handler(COLLTYPE_ENV, COLLTYPE_BULLET)
+        self.envCollisionHandler.pre_solve = self.envCollisionPreSolve
 
     def update(self):
         self.acceleration = clamp01(self.acceleration + self.app.deltaTime * self.accelerationSpeed)
@@ -43,7 +46,6 @@ class Bullet(PhysicsObject):
         self.lifetime += self.app.deltaTime
 
         super().update()
-
 
     def render(self):
         super().render()
@@ -57,6 +59,11 @@ class Bullet(PhysicsObject):
         self.app.Player.stun(.25)
         self.lifetime = self.maxLifeTime
         return True
+
+    def envCollisionPreSolve(self, arbiter:Arbiter, space, data) ->bool:
+        reflectedOut = reflect(self.direction, arbiter.normal)
+        self.direction = reflectedOut
+        return False
 
 class Enemy(PhysicsObject):
     def __init__(self, app, position:tuple, size:int):
@@ -73,8 +80,7 @@ class Enemy(PhysicsObject):
         self.body.position = position
 
         # Shooting
-        self.bullets = []
-        self.attackRate = 0.2
+        self.attackRate = 0.4
         self.lastAttackTime = time.time() - self.getAttackCooldown()
         self.bulletSpeed = 800
         self.bulletSize = 25
@@ -90,12 +96,6 @@ class Enemy(PhysicsObject):
             self.lastAttackTime = time.time()
             self.shoot()
 
-        for bullet in self.bullets:
-            bullet.update()
-            if bullet.isOver():
-                self.bullets.remove(bullet)
-                self.app.space.remove(bullet.body, bullet.boudingBox)
-
         super().update()
 
     def render(self)->None:
@@ -103,12 +103,11 @@ class Enemy(PhysicsObject):
         bound = self.sprite.get_rect(center=self.app.convertCoordinates(self.body.position))
         self.displaySurf.blit(self.sprite, bound)
 
-        for bullet in self.bullets:
-            bullet.render()
-
     def shoot(self):
         offset = Vec2d(0, 175/2)
         dir = (self.app.Player.body.position + offset - self.body.position).normalized()
         bullet = Bullet(self.app, self.body.position, self.bulletSize, dir, self.bulletSpeed, 1.6)
-        self.bullets.append(bullet)
-        print("New bullet")
+        self.app.Bullets.append(bullet)
+
+    def die(self)->None:
+        print("Enemy died !")
