@@ -30,10 +30,11 @@ class Bullet(PhysicsObject):
         self.accelerationEase = BackEaseIn
 
         self.boudingBox = Circle(self.body, size/2)
+        self.boudingBox.collision_type = COLLTYPE_BULLET
         self.app.space.add(self.body, self.boudingBox)
 
         self.bulletCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_BULLET)
-        self.bulletCollisionHandler.post_solve = self.handlePlayerCollision
+        self.bulletCollisionHandler.begin = self.playerCollisionBegin
 
     def update(self):
         self.acceleration = clamp01(self.acceleration + self.app.deltaTime * self.accelerationSpeed)
@@ -52,8 +53,10 @@ class Bullet(PhysicsObject):
     def isOver(self):
         return self.lifetime >= self.maxLifeTime
 
-    def handlePlayerCollision(arbiter, space, data):
-        print(arbiter)
+    def playerCollisionBegin(self, arbiter, space, data) -> bool:
+        self.app.Player.stunUwUWillGetRemoved()
+        self.lifetime = self.maxLifeTime
+        return True
 
 class Enemy(PhysicsObject):
     def __init__(self, app, position:tuple, size:int):
@@ -91,6 +94,7 @@ class Enemy(PhysicsObject):
             bullet.update()
             if bullet.isOver():
                 self.bullets.remove(bullet)
+                self.app.space.remove(bullet.body, bullet.boudingBox)
 
         super().update()
 
