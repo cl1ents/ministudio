@@ -1,0 +1,77 @@
+{
+      "name": "Save #1",
+      "tiles": {
+            "6,3": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "7,3": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "8,3": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "9,3": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "10,3": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "11,3": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "12,4": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "12,5": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "11,5": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "10,6": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "9,6": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "8,6": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "7,6": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "6,6": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "6,5": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "5,5": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "5,4": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            }
+      },
+      "off-grid": [],
+      "physics": [
+            []
+      ]
+}
