@@ -11,6 +11,7 @@ from pygame.locals import *
 from pygame import Vector2
 
 from Player import Player
+from Camera import Camera
 from Enemy import Enemy
 from Baseplate import Baseplate
 from constants import *
@@ -46,6 +47,7 @@ class App:
         self.Baseplate = Baseplate(self)
         self.Player = Player(self)
         self.Enemy = Enemy(self, self.Player, (300,200), 64)
+        self.Camera = Camera(self)
 
 
         self.saveFile = "Level #1.json"
@@ -76,7 +78,7 @@ class App:
         self.Enemy.update(self.deltaTime)
         self.space.step(self.deltaTime)
 
-        self.cameraOffset = Vec2d(self.Player.body.position.x-self.screenSize.x/2, self.Player.body.position.y+self.screenSize.y*.75)
+        self.Camera.update()
     
     def render(self):
         self.screen.fill('white')

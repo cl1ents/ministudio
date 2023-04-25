@@ -50,13 +50,13 @@ class Player(PhysicsObject):
     dashDuration = .5
     dashVelocity = 1200
 
-    gravityLimit = 2000
+    gravityLimit = 3000
 
     def __init__(self, app):
         super().__init__(app)
         
         # Physics
-        self.body.position = app.screenSize.x/2, app.screenSize.y/2
+        self.body.position = 0, 1
         self.body.mass = 0
         
         self.hoverboard = Poly.create_box(self.body, (100, 10))
@@ -138,7 +138,7 @@ class Player(PhysicsObject):
                 case pygame.KEYDOWN:
                     match event.key:
                         case pygame.K_r:
-                            self.body.position = self.app.convertCoordinates(pygame.mouse.get_pos())
+                            self.body.position = Vec2d(0, 1) #self.app.convertCoordinates(pygame.mouse.get_pos())
                             self.body.angle = 0
                         case pygame.K_t:
                             self.body.angular_velocity = 0
@@ -275,7 +275,7 @@ class Player(PhysicsObject):
             for line in self.debugLines:
                 pygame.draw.line(app.screen, "Red", *[app.convertCoordinates(e) for e in line], 1)
 
-            speed = app.comicsans.render(f"SPEED: {int(self.body.velocity.get_distance((0,0)))}", False, (0,0,0))
+            speed = app.comicsans.render(f"SPEED: {self.body.velocity.get_distance((0,0))}", False, (0,0,0))
             # speed = pygame.transform.rotate(speed, math.degrees(self.body.angle))
             rect = speed.get_rect(center=app.convertCoordinates(self.body.local_to_world((0,-25))))
             app.screen.blit(speed, rect)

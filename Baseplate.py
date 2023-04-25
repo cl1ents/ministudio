@@ -14,7 +14,6 @@ from random import randint
 class Baseplate(PhysicsObject): # SANDBOX!
     def __init__(self, app):
         super().__init__(app)
-        self.x = 0
         self.body.body_type=Body.STATIC
         self.app.space.add(self.body)
 
@@ -22,8 +21,7 @@ class Baseplate(PhysicsObject): # SANDBOX!
         self.pointList = []
 
         self.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
-        self.createPoly([(self.x, 0) ,(self.x, 50), (1280, 50), (1280, 0)])
-        self.createPoly([(self.x + 500, 0) ,(self.x + 500, 50), (1280, 50), (1280, 0)])
+        self.createPoly([(-1000, -50) ,(-1000, 0), (1000, 0), (1000, -50)])
         self.speed = 1
 
     def event(self, event):
@@ -66,17 +64,10 @@ class Baseplate(PhysicsObject): # SANDBOX!
     def clear(self):
         self.app.space.remove(*self.polygons)
         self.polygons = []
-        self.createPoly([(self.x, 0) ,(self.x, 50), (1280, 50), (1280, 0)])
-        self.createPoly([(self.x + 500, 0) ,(self.x + 500, 50), (1280, 50), (1280, 0)])
+        self.createPoly([(-1000, -50) ,(-1000, 0), (1000, 0), (1000, -50)])
 
     def update(self):
         super().update()
-        """
-        for poly in self.polygons:
-            poly.body.position = poly.body.position.x - self.speed, poly.body.position.y
-        if self.x < -500:
-            self.x = 0
-        """
 
     def render(self):
         for poly in self.polygons:
