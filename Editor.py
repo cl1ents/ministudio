@@ -1,4 +1,4 @@
-import sys, os, json
+import sys, os, json, time
 
 import pygame
 import pygame.display as display
@@ -48,6 +48,12 @@ class Editor:
         self.offGridEnabled = False
         self.offGridElements = []
 
+        self.enemiesEnabled = False
+        self.enemies = []
+
+        self.drawDelay = 0.2
+        self.lastDraw = time.time() - self.drawDelay
+
         # Buttons
         self.saveButton = Button("res/img/btn/save_button.png", (30,50))
         self.saveButton.bind(self.performSave)
@@ -60,14 +66,21 @@ class Editor:
         
         self.offGridButton = Button("res/img/btn/off_grid_button.png", (30, 275))
         self.offGridButton.bind(self.enableOffGrid)
+
+        self.enemiesButton = Button("res/img/btn/enemies_button.png", (30, 350))
+        self.enemiesButton.bind(self.enableEnemies)
         
-        self.loadSave(CW_SAVE)
+        self.chargeSave()
+        self.loadSave()
 
     def enablePhysics(self):
         self.physicsEnabled = not self.physicsEnabled
         
     def enableOffGrid(self):
         self.offGridEnabled = not self.offGridEnabled
+
+    def enableEnemies(self):
+        self.enemiesEnabled = not self.enemiesEnabled
 
     ### Tiling ###
     # pos: the gridbased x and y coordinates
@@ -121,9 +134,64 @@ class Editor:
             self.origin = vector(mouse_pos()) - self.panOffset
 
     # Saving
+    def chargeSave(self, saveName:str=CW_SAVE):
+        path = os.path.join("saves/", saveName)
+        saveData = {}
+
+        if not os.path.exists(path):
+            print("The save file wasn't found!")
+            return None
+        
+        with open(path, 'r') as f:
+            data = json.load(f)
+
+        # Charge grid tiles
+        saveData['grid-tiles'] = {}
+        for key, tile in data['tiles'].items():
+            coords = key.split(',')
+            coords[0], coords[1] = int(coords[0]), int(coords[1])
+
+            saveData['grid-tiles'][tuple(coords)] = load(tile['sprite_surf'])
+
+        # Charge off-grid tiles
+        saveData['offgrid-tiles'] = []
+        for element in data['off-grid']:
+            position = element['position'].split(',')
+            position[0], position[1] = float(position[0]), float(position[1])
+            
+            saveData['offgrid-tiles'].append({
+                'surf': load(element['sprite_surf']).convert_alpha(),
+                'position': position
+            })
+
+        # Charge physics shapes
+        saveData['physics-shapes'] = []
+        for pointCloud in data['physics']:
+            tempPhysics = []
+            for point in pointCloud:
+                splittedPoint = point.split(',')
+                tempPhysics.append((int(splittedPoint[0]), int(splittedPoint[1])))
+            saveData['physics-shapes'].append(tempPhysics)
+
+        # Charge enemies
+        saveData['enemies'] = []
+        for enemy in data['enemies']:
+            position = enemy['position'].split(',')
+            position[0], position[1] = float(position[0]), float(position[1])
+
+            saveData['enemies'].append({
+                'position': position,
+                'type': enemy['type']
+            })
+
+        return saveData
+
     def loadSave(self, saveName:str=CW_SAVE)->None:
         path = os.path.join("saves/", saveName)
         self.tiles.clear()
+        self.enemies.clear()
+        self.offGridElements.clear()
+        self.physicsPoints = []
         
         if not os.path.exists(path):
             print("The save file wasn't found!")
@@ -152,13 +220,20 @@ class Editor:
                 'position': tuple(position)
             })
         
-        self.physicsPoints = []
         for pointCloud in data['physics']:
             tempPhysics = []
             for point in pointCloud:
                 splittedPoint = point.split(',')
                 tempPhysics.append((int(splittedPoint[0]), int(splittedPoint[1])))
             self.physicsPoints.append(tempPhysics)
+
+        for enemy in data['enemies']:
+            position = enemy['position'].split(',')
+            position[0], position[1] = float(position[0]), float(position[1])
+            self.enemies.append({
+                'position': position,
+                'type': enemy['type']
+            })
     
     def performSave(self, saveName:str=CW_SAVE, name:str="Save #1")->None:
         path = path = os.path.join("saves/", saveName)
@@ -168,7 +243,8 @@ class Editor:
                 "name": name,
                 "tiles": {},
                 "off-grid": [],
-                "physics": []
+                "physics": [],
+                "enemies": []
             }
             
             for key, value in self.tiles.items():
@@ -190,6 +266,13 @@ class Editor:
                 for point in self.physicsPoints[i]:
                     pointCloud.append(str(point[0])+ ',' + str(point[1]))
                 save["physics"].append(pointCloud)
+
+            for enemy in self.enemies:
+                position = str(enemy['position'][0]) + ',' + str(enemy['position'][1])
+                save['enemies'].append({
+                    'position': position,
+                    'type': enemy['type']
+                })
             
             json.dump(save, f, indent=6)
             print("Successfully saved!")
@@ -237,7 +320,9 @@ class Editor:
                 del self.tiles[currentCell]
 
     def offGridDraw(self):
-        if mouse_buttons()[0]: 
+        if time.time() - self.lastDraw < self.drawDelay: return
+        if mouse_buttons()[0]:
+            self.lastDraw = time.time()
             loaded_surf = load('res/img/capybara.png').convert_alpha()
             rescaled = transform.scale(loaded_surf, vector(loaded_surf.get_size()) * self.zoomFactor)
             self.offGridElements.append({
@@ -250,14 +335,36 @@ class Editor:
                 value = self.offGridElements[i]
                 rect = Rect(value['position'], value['surf'].get_size())
                 if rect.collidepoint(mouse_pos()):
+                    self.lastDraw = time.time()
                     del self.offGridElements[i]
                     break
                     
+    def enemiesDraw(self):
+        if time.time() - self.lastDraw < self.drawDelay: return
+        if mouse_buttons()[0]:
+            self.lastDraw = time.time()
+            loaded_surf = load('res/img/mouche.png').convert_alpha()
+            rescaled = transform.scale(loaded_surf, vector(1,1) * DEFAULT_TILE_SIZE * self.zoomFactor)
+            self.enemies.append({
+                "position": vector(mouse_pos()) - self.origin - vector(rescaled.get_size()) * 0.5,
+                "type": 1
+            })
+        if mouse_buttons()[2]:
+            for i in range(len(self.enemies)):
+                enemy = self.enemies[i]
+                rect = Rect(enemy['position'], DEFAULT_TILE_SIZE)
+                if rect.collidepoint(mouse_pos()):
+                    self.lastDraw = time.time()
+                    del self.enemies[i]
+                    break
+
     def draw(self)->None:
-        if self.saveButton.rect.collidepoint(mouse_pos()) or self.loadButton.rect.collidepoint(mouse_pos()) or self.physicsEnabledButton.rect.collidepoint(mouse_pos()) or self.offGridButton.rect.collidepoint(mouse_pos()):
+        if self.saveButton.rect.collidepoint(mouse_pos()) or self.loadButton.rect.collidepoint(mouse_pos()) or self.physicsEnabledButton.rect.collidepoint(mouse_pos()) or self.offGridButton.rect.collidepoint(mouse_pos()) or self.enemiesButton.rect.collidepoint(mouse_pos()):
             return
         
-        if self.physicsEnabled:
+        if self.enemiesEnabled:
+            self.enemiesDraw()
+        elif self.physicsEnabled:
             self.physicsDraw()
         elif self.offGridEnabled:
             self.offGridDraw()
@@ -276,6 +383,11 @@ class Editor:
             surf = transform.scale(value['surf'], (scaledTileSize,scaledTileSize))
             self.displaySurface.blit(surf, pos)
             
+        for enemy in self.enemies:
+            pos = self.origin + vector(enemy['position']) * self.zoomFactor
+            surf = transform.scale(load("res/img/mouche.png"), vector(1,1) * DEFAULT_TILE_SIZE * self.zoomFactor)
+            self.displaySurface.blit(surf, pos)
+
         if self.physicsEnabled:
             physicsSurf = Surface(self.displaySurface.get_size())
             physicsSurf.set_colorkey('green')
@@ -300,4 +412,5 @@ class Editor:
         self.loadButton.draw()
         self.physicsEnabledButton.draw()
         self.offGridButton.draw()
+        self.enemiesButton.draw()
         draw.circle(self.displaySurface, 'red', self.origin, 10)

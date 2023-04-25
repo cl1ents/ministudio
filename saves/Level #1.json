@@ -1,63 +1,43 @@
 {
       "name": "Save #1",
       "tiles": {
-            "6,3": {
+            "5,2": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "7,3": {
+            "6,2": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "8,3": {
+            "7,2": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "9,3": {
+            "8,2": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "10,3": {
+            "9,2": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "11,3": {
+            "10,2": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "12,4": {
+            "11,2": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "12,5": {
+            "12,2": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "11,5": {
+            "5,3": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "10,6": {
-                  "sprite_surf": "res/img/capybara.png",
-                  "tiling": 64
-            },
-            "9,6": {
-                  "sprite_surf": "res/img/capybara.png",
-                  "tiling": 64
-            },
-            "8,6": {
-                  "sprite_surf": "res/img/capybara.png",
-                  "tiling": 64
-            },
-            "7,6": {
-                  "sprite_surf": "res/img/capybara.png",
-                  "tiling": 64
-            },
-            "6,6": {
-                  "sprite_surf": "res/img/capybara.png",
-                  "tiling": 64
-            },
-            "6,5": {
+            "5,4": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
@@ -65,7 +45,55 @@
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             },
-            "5,4": {
+            "5,6": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "5,7": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "6,7": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "7,7": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "8,7": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "9,7": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "10,7": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "11,7": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "12,7": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "12,6": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "12,5": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "12,4": {
+                  "sprite_surf": "res/img/capybara.png",
+                  "tiling": 64
+            },
+            "12,3": {
                   "sprite_surf": "res/img/capybara.png",
                   "tiling": 64
             }
@@ -73,5 +101,15 @@
       "off-grid": [],
       "physics": [
             []
+      ],
+      "enemies": [
+            {
+                  "position": "471.0,214.0",
+                  "type": 1
+            },
+            {
+                  "position": "676.0,331.0",
+                  "type": 1
+            }
       ]
 }

@@ -270,8 +270,6 @@ class Player(PhysicsObject):
             
             app.screen.blit(self.boundingBox, self.BBrect)
 
-            
-            
             draw_line_round_corners(app.screen, (255, 0, 0), app.convertCoordinates(self.body.local_to_world(self.chara.a)), app.convertCoordinates(self.body.local_to_world(self.chara.b)), int(self.chara.radius*2))
 
             for line in self.debugLines:

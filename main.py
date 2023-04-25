@@ -13,6 +13,8 @@ from Enemy import Enemy
 from Baseplate import Baseplate
 from constants import *
 
+from Editor import Editor
+
 pointlist = []
 class App:
     def __init__(self):
@@ -40,6 +42,10 @@ class App:
         self.Baseplate = Baseplate(self)
         self.Player = Player(self)
         self.Enemy = Enemy(self, self.Player, (300,200), 64)
+
+        self.saveFile = "Level #1.json"
+        self.saveData = Editor.chargeSave(None, self.saveFile)
+        if self.saveData: print("Save data successfully charged!")
 
     def events(self):
         global pointlist
