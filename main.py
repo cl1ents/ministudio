@@ -71,7 +71,7 @@ class App:
         y -= self.screenSize.y-self.cameraOffset[1]
 
         return x, y
-
+        
     def update(self):
         self.Baseplate.update()
         self.Player.update()

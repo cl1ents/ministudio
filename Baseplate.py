@@ -21,14 +21,14 @@ class Baseplate(PhysicsObject): # SANDBOX!
         self.pointList = []
         self.x = -100
         self.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
-        self.floor = [[(self.x, -25) ,(self.x, 0), (self.x + 2000 , 0), (self.x + 2000 , -25)], 
-        [(self.x + 2500 , -25) ,(self.x+ 2500 , 0), (self.x + 4000  , 0), (self.x + 4000 , -25)], 
-        [(self.x + 2600 , 0) ,(self.x+ 2700, 125), (self.x + 3800, 125), (self.x + 3900, 0)], 
-        [(self.x + 4300 , -25) ,(self.x+ 4300 , 275), (self.x + 6000 , 275), (self.x + 6000 , -25)], 
-        [(self.x + 6500 , -25) ,(self.x+ 6500 , 275), (self.x + 7000 , 275), (self.x + 7000, -25)], 
-        [(self.x + 7000 , -25) ,(self.x + 7000 , 275), (self.x + 9000, 0), (self.x + 9000, -25)],
-        [(self.x + 9500 , -25) ,(self.x + 9500 , 0), (self.x + 15000, 0), (self.x + 15000, -25)],
-        [(self.x + 13000 , -25) ,(self.x + 13000 , 0), (self.x + 15000, 125), (self.x + 15000, -25)]]
+        self.floor = [[(self.x, -50) ,(self.x, -25), (self.x + 2000 , -25), (self.x + 2000 , -50)], 
+        [(self.x + 2500 , -50) ,(self.x+ 2500 , -25), (self.x + 4000  , -25), (self.x + 4000 , -50)], 
+        [(self.x + 2600 , -25) ,(self.x+ 2700, 125), (self.x + 3800, 125), (self.x + 3900, -25)], 
+        [(self.x + 4300 , -50) ,(self.x+ 4300 , 250), (self.x + 6500 , 250), (self.x + 6500 , -50)], 
+        [(self.x + 6500 , -50) ,(self.x+ 6500 , 250), (self.x + 7000 , 250), (self.x + 7000, -50)], 
+        [(self.x + 7000 , -50) ,(self.x + 7000 , 250), (self.x + 9000, -25), (self.x + 9000, -25)],
+        [(self.x + 9500 , -50) ,(self.x + 9500 , -25), (self.x + 12000, -25), (self.x + 12000, -50)],
+        [(self.x + 10000 , -50) ,(self.x + 10000 , -25), (self.x + 12000, 250), (self.x + 12000, -50)]]
         self.speed = 1
 
     def event(self, event):
