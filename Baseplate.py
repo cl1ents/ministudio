@@ -22,8 +22,8 @@ class Baseplate(PhysicsObject): # SANDBOX!
         self.pointList = []
 
         self.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
-        self.createPoly([(self.x, 0) ,(self.x, 50), (1280, 50), (1280, 0)])
-        self.createPoly([(self.x + 500, 0) ,(self.x + 500, 50), (1280, 50), (1280, 0)])
+        self.createPoly([(self.x, 0) ,(self.x, 50), (1280, 50), (1280+9999, 0)])
+        self.createPoly([(self.x + 500, 0) ,(self.x + 500, 50), (1280+9999, 50), (1280, 0)])
         self.speed = 1
 
     def event(self, event):

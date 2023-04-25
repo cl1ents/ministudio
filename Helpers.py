@@ -10,6 +10,9 @@ def lerp(a, b, t, easing=LinearInOut):
 def clamp(num, min_value, max_value):
    return max(min(num, max_value), min_value)
 
+def clamp01(num):
+    return clamp(num, 0, 1)
+
 """ Old raycasting!
 def raycast(origin: Vector2, target: Vector2, collisions: list, maxsteps=10):
     casting = True
