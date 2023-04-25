@@ -54,7 +54,7 @@ class Bullet(PhysicsObject):
         return self.lifetime >= self.maxLifeTime
 
     def playerCollisionBegin(self, arbiter, space, data) -> bool:
-        self.app.Player.stunUwUWillGetRemoved()
+        self.app.Player.stun(.25)
         self.lifetime = self.maxLifeTime
         return True
 
