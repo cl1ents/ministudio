@@ -19,10 +19,19 @@ class Baseplate(PhysicsObject): # SANDBOX!
 
         self.polygons = []
         self.pointList = []
-
+        self.x = -100
         self.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
-        self.createPoly([(-1000, -50) ,(-1000, 0), (1000, 0), (1000, -50)])
+        self.floor = [[(self.x, -50) ,(self.x, -25), (self.x + 2000 , -25), (self.x + 2000 , -50)], 
+        [(self.x + 2500 , -50) ,(self.x+ 2500 , -25), (self.x + 4000  , -25), (self.x + 4000 , -50)], 
+        [(self.x + 2600 , -25) ,(self.x+ 2700, 125), (self.x + 3800, 125), (self.x + 3900, -25)], 
+        [(self.x + 4300 , -50) ,(self.x+ 4300 , 250), (self.x + 6500 , 250), (self.x + 6500 , -50)], 
+        [(self.x + 6500 , -50) ,(self.x+ 6500 , 250), (self.x + 7000 , 250), (self.x + 7000, -50)], 
+        [(self.x + 7000 , -50) ,(self.x + 7000 , 250), (self.x + 9000, -25), (self.x + 9000, -25)],
+        [(self.x + 9500 , -50) ,(self.x + 9500 , -25), (self.x + 12000, -25), (self.x + 12000, -50)],
+        [(self.x + 10000 , -50) ,(self.x + 10000 , -25), (self.x + 12000, 250), (self.x + 12000, -50)]]
         self.speed = 1
+        
+        self.clear()
 
     def event(self, event):
         match event.type:
@@ -33,7 +42,7 @@ class Baseplate(PhysicsObject): # SANDBOX!
             case pygame.MOUSEBUTTONDOWN:
                 match event.button:
                     case 1:
-                        self.pointList.append(self.app.convertCoordinates(pygame.mouse.get_pos()))
+                        self.pointList.append(self.app.convertCoordinatesFromScreen(pygame.mouse.get_pos()))
                     case 3:
                         print(self.pointList)
                         self.createPoly(self.pointList)
@@ -65,14 +74,15 @@ class Baseplate(PhysicsObject): # SANDBOX!
     def clear(self):
         self.app.space.remove(*self.polygons)
         self.polygons = []
-        self.createPoly([(-1000, -50) ,(-1000, 0), (1000, 0), (1000, -50)])
+        for poly in self.floor:
+            self.createPoly(poly)
 
     def update(self):
         super().update()
 
     def render(self):
         for poly in self.polygons:
-            draw.polygon(self.app.screen, (0, 255, 0),[(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
+            draw.polygon(self.app.screen, (0, 0, 0),[(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
         # draw.rect(self.app.screen, "Blue", self.getRect())
 
     """
