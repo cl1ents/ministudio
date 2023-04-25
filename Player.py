@@ -280,7 +280,7 @@ class Player(PhysicsObject):
         else:
             self.imageIndex = 3 if self.body.velocity.y > 0 else 4
 
-        self.chara.b = (0, 75) if self.crouch else (0, 100)
+        #self.chara.b = (0, 75) if self.crouch else (0, 100)
 
         self.jumpTick += app.deltaTime
         self.dashTick += app.deltaTime

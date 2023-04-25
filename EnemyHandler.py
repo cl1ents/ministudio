@@ -15,7 +15,7 @@ from Helpers import lerp, clamp01, reflect
 from easing_functions import *
 
 class Bullet(PhysicsObject):
-    def __init__(self, app, position:tuple, size:int, dir:Vec2d, speed:float, accelerationSpeed:float, maxBounces:int=1, maxLifeTime=MAX_BULLET_LIFETIME):
+    def __init__(self, app, position:tuple, size:int, dir:Vec2d, speed:float, accelerationSpeed:float, maxBounces:int=1, bounceSpeedGain:float=0, maxLifeTime=MAX_BULLET_LIFETIME):
         super().__init__(app)
         # self.body.body_type=Body.STATIC
         self.displaySurf = display.get_surface()
@@ -30,6 +30,7 @@ class Bullet(PhysicsObject):
         self.bounces = 0
         self.accelerationSpeed = accelerationSpeed
         self.accelerationEase = BackEaseIn
+        self.bounceSpeedGain = bounceSpeedGain
 
         self.boundingBox = Circle(self.body, size)
         self.boundingBox.collision_type = COLLTYPE_BULLET
@@ -62,17 +63,20 @@ class Bullet(PhysicsObject):
         self.lifetime = self.maxLifeTime
         return True
 
-    def envCollisionBegin(self, arbiter:Arbiter, space, data) ->bool:
+    def envCollisionBegin(self, arbiter:Arbiter, space, data)->bool:
         if self.bounces >= self.maxBounces:
             self.lifetime = self.maxLifeTime
         else:
             self.bounces += 1
             reflectedOut = reflect(self.direction, arbiter.normal)
             self.direction = reflectedOut
+            self.speed *= 1 + self.bounceSpeedGain
+            self.acceleration = 0
+            self.accelerationSpeed *= 1 + self.bounceSpeedGain
         return False
 
 class EnemyConfig:
-    def __init__(self, shooting:bool=True, attackRate:float=0.4, bulletSpeed:float=800, bulletSize:float=25, attackRange:float=700, sightDistance:float=900, moveSpeed:float=100):
+    def __init__(self, shooting:bool=True, attackRate:float=0.4, bulletSpeed:float=800, bulletSize:float=25, attackRange:float=700, sightDistance:float=900, moveSpeed:float=100, bounceSpeedGain:float=0.4):
         self.shooting = shooting
         self.attackRate = attackRate
         self.bulletSpeed = bulletSpeed
@@ -80,6 +84,7 @@ class EnemyConfig:
         self.attackRange = attackRange
         self.sightDistance = sightDistance
         self.moveSpeed = moveSpeed
+        self.bounceSpeedGain = bounceSpeedGain
 
 class Enemy(PhysicsObject):
     def __init__(self, app, position:tuple, sprite_path:str, size:int, config:EnemyConfig)->None:
@@ -112,11 +117,13 @@ class Enemy(PhysicsObject):
             if (elapsed >= self.getAttackCooldown()):
                 plrRay = self.app.space.segment_query_first(self.body.position, self.app.Player.body.position, self.config.bulletSize, self.app.Player.mask)
                 enemyRay = self.app.space.segment_query_first(self.body.position, self.app.Player.body.position, self.config.bulletSize, self.mask)
-                if plrRay and not enemyRay:
+                print(plrRay, enemyRay)
+                if True and not False:
+                    self.lastAttackTime = time.time()
                     self.perform()
         elif (distanceToPlayer <= self.config.sightDistance):
             plrRay = self.app.space.segment_query_first(self.body.position, self.app.Player.body.position, self.size, self.app.Player.mask)
-            if plrRay:
+            if True:
                 self.move()
         super().update()
 
@@ -132,51 +139,11 @@ class Enemy(PhysicsObject):
     def perform(self)->None:
         offset = Vec2d(0, 175/2)
         dir = (self.app.Player.body.position + offset - self.body.position).normalized()
-        bullet = Bullet(self.app, self.body.position, self.bulletSize, dir, self.bulletSpeed, 1.6, random.randint(1, 8))
+        bullet = Bullet(self.app, self.body.position, self.config.bulletSize, dir, self.config.bulletSpeed, 1.6, random.randint(1, 8), self.config.bounceSpeedGain)
         self.app.EnemyHandler.Bullets.append(bullet)
 
     def getAttackCooldown(self)->float:
         return 1 / self.config.attackRate
-
-# class Enemy(PhysicsObject):
-#     def __init__(self, app, position:tuple, size:int, config:EnemyConfig):
-#         super().__init__(app)
-#         self.displaySurf = display.get_surface()
-#         self.sprite = transform.scale(load('res/img/mouche.png'), (size,size))
-#         self.dead = False
-
-#         self.boundingBox = Circle(self.body, size/2)
-#         self.boundingBox.collision_type = COLLTYPE_ENEMY
-#         self.app.space.add(self.body, self.boundingBox)
-#         self.enemyCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_ENEMY)
-
-#         # Shooting
-#         self.config = config
-
-#     def getAttackCooldown(self)->None:
-#         return 1 / self.attackRate
-
-#     def update(self)->None:
-#         self.body.velocity = Vec2d(0,0)
-#         self.body.angular_velocity = 0
-
-#         distanceToPlayer = (self.app.Player.body.position - self.body.position).length
-#         if (time.time() - self.lastAttackTime) >= self.getAttackCooldown() and distanceToPlayer <= self.attackRange:
-#             self.lastAttackTime = time.time()
-#             self.shoot()
-
-#         super().update()
-
-#     def render(self)->None:
-#         super().render()
-#         bound = self.sprite.get_rect(center=self.app.convertCoordinates(self.body.position))
-#         self.displaySurf.blit(self.sprite, bound)
-
-#     def shoot(self):
-#         offset = Vec2d(0, 175/2)
-#         dir = (self.app.Player.body.position + offset - self.body.position).normalized()
-#         bullet = Bullet(self.app, self.body.position, self.bulletSize, dir, self.bulletSpeed, 1.6, random.randint(1, 8))
-#         self.app.EnemyHandler.Bullets.append(bullet)
 
 class EnemyHandler:
     def __init__(self, app):
