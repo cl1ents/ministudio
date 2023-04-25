@@ -88,7 +88,7 @@ class App:
         while self.running:
             screen = self.screen
             self.screenSize = Vector2(screen.get_width(), screen.get_height())
-            # self.Baseplate.clear()
+            self.Baseplate.clear()
 
             self.events()
             self.update()

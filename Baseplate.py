@@ -19,9 +19,16 @@ class Baseplate(PhysicsObject): # SANDBOX!
 
         self.polygons = []
         self.pointList = []
-
+        self.x = -100
         self.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
-        self.createPoly([(-1000, -50) ,(-1000, 0), (1000, 0), (1000, -50)])
+        self.floor = [[(self.x, 0) ,(self.x, 25), (self.x + 2000 , 25), (self.x + 2000 , 0)], 
+        [(self.x + 2500 , 0) ,(self.x+ 2500 , 25), (self.x + 4000  , 25), (self.x + 4000 , 0)], 
+        [(self.x + 2600 , 25) ,(self.x+ 2700, 150), (self.x + 3800, 150), (self.x + 3900, 25)], 
+        [(self.x + 4300 , 0) ,(self.x+ 4300 , 300), (self.x + 6000 , 300), (self.x + 6000 , 0)], 
+        [(self.x + 6500 , 0) ,(self.x+ 6500 , 300), (self.x + 7000 , 300), (self.x + 7000, 0)], 
+        [(self.x + 7000 , 0) ,(self.x + 7000 , 300), (self.x + 9000, 25), (self.x + 9000, 0)],
+        [(self.x + 10000 , 0) ,(self.x + 10000 , 25), (self.x + 15000, 25), (self.x + 15000, 0)],
+        [(self.x + 13000 , 0) ,(self.x + 13000 , 25), (self.x + 15000, 150), (self.x + 15000, 0)]]
         self.speed = 1
 
     def event(self, event):
@@ -64,14 +71,15 @@ class Baseplate(PhysicsObject): # SANDBOX!
     def clear(self):
         self.app.space.remove(*self.polygons)
         self.polygons = []
-        self.createPoly([(-1000, -50) ,(-1000, 0), (1000, 0), (1000, -50)])
+        for poly in self.floor:
+            self.createPoly(poly)
 
     def update(self):
         super().update()
 
     def render(self):
         for poly in self.polygons:
-            draw.polygon(self.app.screen, (0, 255, 0),[(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
+            draw.polygon(self.app.screen, (0, 0, 0),[(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
         # draw.rect(self.app.screen, "Blue", self.getRect())
 
     """
