@@ -108,7 +108,7 @@ class Enemy(PhysicsObject):
 
     def shoot(self):
         offset = Vec2d(0, 175/2)
-        dir = (self.app.Player.body.position + offset - self.body.position).normalized()
+        dir = (self.app.Player.body.local_to_world((0, 175/2)) - self.body.position).normalized()
         bullet = Bullet(self.app, self.body.position, self.bulletSize, dir, self.bulletSpeed, 1.6)
         self.bullets.append(bullet)
         print("New bullet")

@@ -21,7 +21,8 @@ class Baseplate(PhysicsObject): # SANDBOX!
         self.pointList = []
 
         self.filter = pymunk.ShapeFilter(categories = MAP_CATEGORY)
-        self.createPoly([(-1000, -50) ,(-1000, 0), (1000, 0), (1000, -50)])
+        self.createPoly([(-20000, -50) ,(-20000, 0), (20000, 0), (20000, -50)])
+        self.createPoly([(-20000, -50+500) ,(-20000, 0+500), (20000, 0+500), (20000, -50+500)])
         self.speed = 1
 
     def event(self, event):
@@ -33,7 +34,7 @@ class Baseplate(PhysicsObject): # SANDBOX!
             case pygame.MOUSEBUTTONDOWN:
                 match event.button:
                     case 1:
-                        self.pointList.append(self.app.convertCoordinates(pygame.mouse.get_pos()))
+                        self.pointList.append(self.app.convertCoordinatesFromScreen(pygame.mouse.get_pos()))
                     case 3:
                         print(self.pointList)
                         self.createPoly(self.pointList)

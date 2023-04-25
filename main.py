@@ -69,6 +69,16 @@ class App:
         y -= self.screenSize.y-self.cameraOffset[1]
 
         return x, y
+    
+    def convertCoordinatesFromScreen(self, point):
+        x, y = point[0], point[1]
+
+        x += self.cameraOffset[0]
+        y += self.screenSize.y-self.cameraOffset[1]
+
+        y = self.screenSize.y-y
+
+        return x, y
 
     def update(self):
         self.Baseplate.update()

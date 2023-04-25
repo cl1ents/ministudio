@@ -50,7 +50,7 @@ class Player(PhysicsObject):
     dashDuration = .5
     dashVelocity = 1200
 
-    gravityLimit = 3000
+    gravityLimit = 2000
 
     def __init__(self, app):
         super().__init__(app)
@@ -198,9 +198,12 @@ class Player(PhysicsObject):
             self.airControlTick += app.deltaTime
 
         if self.dashTick == 0:
-            self.dashDirection = (app.convertCoordinates(pygame.mouse.get_pos())-self.body.position).normalized()
+            self.dashDirection = (app.convertCoordinatesFromScreen(pygame.mouse.get_pos())-self.body.position).normalized()
             self.body.velocity *= .6
             self.body.velocity += self.dashDirection*self.dashVelocity
+        
+        
+        self.debugLines.append([self.body.position, self.body.position+self.dashDirection])
 
         if self.jumpTick == 0 and floor:
             # self.body.apply_impulse_at_local_point((0,500000))
@@ -257,6 +260,8 @@ class Player(PhysicsObject):
             fullAngle = Vec2d(0,1).rotated(self.body.angle).get_angle_between(center.normal)
             self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.001
 
+        self.body.velocity = self.body.velocity.x, max(self.body.velocity.y, -self.gravityLimit)
+
         self.jumpTick += app.deltaTime
         self.dashTick += app.deltaTime
 
@@ -290,11 +295,10 @@ class Player(PhysicsObject):
             for line in self.debugLines:
                 pygame.draw.line(app.screen, "Red", *[app.convertCoordinates(e) for e in line], 1)
 
-            speed = app.comicsans.render(f"SPEED: {self.body.velocity.get_distance((0,0))}", False, (0,0,0))
+            speed = app.comicsans.render(f"SPEED: {int(self.body.velocity.get_distance((0,0)) or 0)}", False, (0,0,0))
             # speed = pygame.transform.rotate(speed, math.degrees(self.body.angle))
             rect = speed.get_rect(center=app.convertCoordinates(self.body.local_to_world((0,-25))))
             app.screen.blit(speed, rect)
-            self.gravityLimit = min(self.body.velocity.y, self.gravityLimit)
 
         self.rect.center = app.convertCoordinates(self.body.local_to_world((0,75)))
         self.image = pygame.transform.smoothscale(self.orig_image, (175,175))
