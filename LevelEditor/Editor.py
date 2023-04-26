@@ -58,6 +58,8 @@ class Editor:
         self.drawDelay = 0.2
         self.lastDraw = time.time() - self.drawDelay
 
+        self.originSprite = load("./res/img/idle.png").convert_alpha()
+
         # Buttons
         self.saveButton = Button("res/img/btn/save_button.png", (30,50))
         self.saveButton.bind(self.performSave)
@@ -397,4 +399,5 @@ class Editor:
         self.physicsEnabledButton.draw()
         self.offGridButton.draw()
         self.enemiesButton.draw()
-        draw.circle(self.displaySurface, 'red', self.origin, 10)
+        self.displaySurface.blit(transform.scale(self.originSprite, vector(175,175)*self.zoomFactor), self.origin)
+        
