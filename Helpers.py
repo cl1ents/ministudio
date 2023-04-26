@@ -1,12 +1,19 @@
 from easing_functions import *
-from pygame import Vector2
-from pygame import Rect
+from pygame import Vector2, Rect, Color
 from pymunk import Vec2d
 
 import math
 
 def lerp(a, b, t, easing=LinearInOut):
     return a + (b - a) * easing.func(None, t)
+
+def colorLerp(a:Color, b:Color, t:float, easing:LinearInOut):
+    return Color(
+        int(lerp(a.r, b.r, t, easing)),
+        int(lerp(a.g, b.g, t, easing)),
+        int(lerp(a.b, b.b, t, easing)),
+        int(lerp(a.a, b.a, t, easing))
+    )
 
 def clamp(num, min_value, max_value):
    return max(min(num, max_value), min_value)

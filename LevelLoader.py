@@ -2,8 +2,13 @@ import json, os, time
 
 from pygame.image import load
 import pygame.draw as draw
+from pygame import Color
 
 from BaseLevel import BaseLevel
+
+from random import randint
+from Helpers import  clamp01, colorLerp
+from easing_functions import *
 
 class LevelLoader:
     def __init__(self, app, saveName="Level #1.json"):
@@ -16,9 +21,14 @@ class LevelLoader:
         print("Save data successfully loaded!")
         
         self.BaseLevel = BaseLevel(app)
-        self.color = (255,0,120)
+        self.color = self.generate_random_color()
+        self.previousColor = self.color
+        self.targetColor = self.color
         self.colorSwitchDelay = 7
-        self.colorSwitchTime = time.time() - self.colorSwitchDelay
+        self.colorSwitchDuration = 3
+        self.colorSwitchTime = time.time()
+        self.colorSwitchAlpha = 1
+        self.colorSwitchDelay = 5
         self.createPolygons()
 
     def loadSave(self):
@@ -88,4 +98,13 @@ class LevelLoader:
         if not self.BaseLevel: return
         self.BaseLevel.update()
 
-        self.
+        self.colorSwitchAlpha = clamp01(self.colorSwitchAlpha + self.app.deltaTime * (1/self.colorSwitchDuration))
+        self.color = colorLerp(self.previousColor, self.targetColor, self.colorSwitchAlpha, LinearInOut)
+        if time.time() - self.colorSwitchTime >= self.colorSwitchDuration + self.colorSwitchDelay:
+            self.colorSwitchTime = time.time()
+            self.colorSwitchAlpha = 0
+            self.previousColor = self.targetColor
+            self.targetColor = self.generate_random_color()
+
+    def generate_random_color(self):
+        return Color(randint(0,255),randint(0,255),randint(0,255), 255)

@@ -8,6 +8,8 @@ import pygame.draw as draw
 import pygame.transform as transform
 import pygame.display as display
 
+import pymunk
+
 import time, math, random
 
 from constants import *
@@ -33,6 +35,7 @@ class Bullet(PhysicsObject):
 
         self.boundingBox = Circle(self.body, size)
         self.boundingBox.collision_type = COLLTYPE_BULLET
+        self.boundingBox.filter = ShapeFilter(categories = ENEMY_CATEGORY)
         app.space.add(self.body, self.boundingBox)
 
         self.playerCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_BULLET)
@@ -97,6 +100,7 @@ class Enemy(PhysicsObject):
         # Physics:
         self.boundingBox = Circle(self.body, size/2)
         self.boundingBox.collision_type = COLLTYPE_ENEMY
+        self.boundingBox.filter = ShapeFilter(categories = ENEMY_CATEGORY)
         self.app.space.add(self.body, self.boundingBox)
 
         self.enemyCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_ENEMY)
