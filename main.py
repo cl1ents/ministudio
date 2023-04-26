@@ -34,6 +34,8 @@ class App:
         self.screenSize = Vector2(self.screen.get_size())
         self.screenRect = Rect(0, 0, self.screenSize.x, self.screenSize.y)
         self.realScreenSize = Vector2(display.get_window_size())
+        
+        self.fovScale = 1
 
         self.space = pymunk.Space()
         self.space.gravity = 0, -1800
@@ -91,6 +93,11 @@ class App:
         self.Camera.update()
     
     def render(self):
+        sizeTarget = Vector2(RENDER_SIZE)*self.fovScale
+        if self.screenSize != sizeTarget:
+            self.screen = pygame.Surface(sizeTarget).convert()
+            self.screenSize = Vector2(self.screen.get_size())
+        
         self.screen.fill('white')
         #self.Baseplate.render()
         self.Player.render()
@@ -108,7 +115,6 @@ class App:
     def run(self):
         while self.running:
             screen = self.screen
-            self.screenSize = Vector2(screen.get_size())
             self.realScreenSize = Vector2(display.get_window_size())
 
             self.events()
