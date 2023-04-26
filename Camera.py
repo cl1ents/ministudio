@@ -3,10 +3,16 @@ import pymunk, pygame
 from pymunk import Vec2d
 from constants import *
 
+from Helpers import lerp, clamp01
+from easing_functions import *
+
 #from pymunk
 
 class Camera:
     mask = pymunk.ShapeFilter(mask=pymunk.ShapeFilter.ALL_MASKS()^PLAYER_CATEGORY^ENEMY_CATEGORY)
+    minFov = 0.9
+    maxFov = 1.4
+    maxSpeed = 2500
 
     def __init__(self, app):
         self.app = app
@@ -33,3 +39,7 @@ class Camera:
         #self.position += self.velocity * self.app.deltaTime
 
         app.cameraOffset = Vec2d(self.position.x-app.screenSize.x/2, self.position.y+app.screenSize.y/2) # self.position
+
+    def CalculateFOV(self, speed):
+        alpha = clamp01(speed / self.maxSpeed)
+        return lerp(self.minFov, self.maxFov, alpha, QuinticEaseIn)

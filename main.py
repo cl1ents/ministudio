@@ -34,7 +34,7 @@ class App:
         self.screenSize = Vector2(self.screen.get_size())
         self.screenRect = Rect(0, 0, self.screenSize.x, self.screenSize.y)
         self.realScreenSize = Vector2(display.get_window_size())
-        
+
         self.fovScale = 1
 
         self.space = pymunk.Space()
@@ -91,6 +91,7 @@ class App:
         self.space.step(self.deltaTime)
 
         self.Camera.update()
+        self.fovScale = self.Camera.CalculateFOV(int(self.Player.body.velocity.get_distance((0,0))))
     
     def render(self):
         sizeTarget = Vector2(RENDER_SIZE)*self.fovScale
