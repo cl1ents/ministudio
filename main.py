@@ -15,7 +15,7 @@ from EnemyHandler import EnemyHandler
 from Baseplate import Baseplate
 from constants import *
 
-from Editor import Editor
+from LevelLoader import LevelLoader
 
 pointlist = []
 class App:
@@ -43,16 +43,14 @@ class App:
         self.time = 0
         self.running = True
         
-        self.Baseplate = Baseplate(self)
+        #self.Baseplate = Baseplate(self)
         self.Player = Player(self)
         self.EnemyHandler = EnemyHandler(self)
         self.EnemyHandler.instantiateEnemy((300, 500), 64)
-        #self.EnemyHandler.instantiateEnemy((600, 60), 64)
         self.Camera = Camera(self)
 
-        self.saveFile = "Level #1.json"
-        self.saveData = Editor.chargeSave(None, self.saveFile)
-        if self.saveData: print("Save data successfully charged!")
+        self.LevelLoader = LevelLoader(self)
+        self.LevelLoader.loadSave()
 
     def events(self):
         global pointlist
@@ -62,7 +60,7 @@ class App:
                 case pygame.QUIT:
                     self.running = False
             self.Player.event(event)
-            self.Baseplate.event(event)
+            #self.Baseplate.event(event)
 
     def convertCoordinates(self, point):
         x, y = point[0], (self.screenSize.y-point[1])
@@ -83,9 +81,10 @@ class App:
         return x, y
 
     def update(self):
-        self.Baseplate.update()
+        #self.Baseplate.update()
         self.Player.update()
         self.EnemyHandler.update()
+        self.LevelLoader.update()
 
         self.space.step(self.deltaTime)
 
@@ -93,9 +92,10 @@ class App:
     
     def render(self):
         self.screen.fill('white')
-        self.Baseplate.render()
+        #self.Baseplate.render()
         self.Player.render()
         self.EnemyHandler.render()
+        self.LevelLoader.render()
 
         size = (self.realScreenSize.x, self.realScreenSize.x / 16 * 9)
         if self.realScreenSize.y > size[1]:
@@ -114,9 +114,6 @@ class App:
             self.events()
             self.update()
             self.render()
-
-            if len(self.Baseplate.pointList) > 2:
-                draw.polygon(screen, "Navy", [(self.convertCoordinates(i)) for i in self.Baseplate.pointList])
 
             # self.surf.fill("White")
             # self.space.debug_draw(self.options)

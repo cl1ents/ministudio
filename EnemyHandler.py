@@ -18,7 +18,6 @@ class Bullet(PhysicsObject):
     def __init__(self, app, position:tuple, size:int, dir:Vec2d, speed:float, accelerationSpeed:float, maxBounces:int=1, bounceSpeedGain:float=0, maxLifeTime=MAX_BULLET_LIFETIME):
         super().__init__(app)
         # self.body.body_type=Body.STATIC
-        self.displaySurf = app.screen
         self.sprite = transform.scale(load('res/img/bullet.png'), (size,size))
         self.body.position = position
         self.direction = dir
@@ -40,7 +39,7 @@ class Bullet(PhysicsObject):
         self.playerCollisionHandler.begin = self.playerCollisionBegin
 
         self.envCollisionHandler = app.space.add_collision_handler(COLLTYPE_ENV, COLLTYPE_BULLET)
-        self.envCollisionHandler.pre_solve = self.envCollisionBegin
+        self.envCollisionHandler.begin = self.envCollisionBegin
 
     def update(self):
         self.acceleration = clamp01(self.acceleration + self.app.deltaTime * self.accelerationSpeed)
@@ -53,7 +52,7 @@ class Bullet(PhysicsObject):
     def render(self):
         super().render()
         bound = self.sprite.get_rect(center=self.app.convertCoordinates(self.body.position))
-        self.displaySurf.blit(self.sprite, bound)
+        self.app.screen.blit(self.sprite, bound)
 
     def isOver(self):
         return self.lifetime >= self.maxLifeTime
@@ -76,7 +75,7 @@ class Bullet(PhysicsObject):
         return False
 
 class EnemyConfig:
-    def __init__(self, shooting:bool=True, attackRate:float=0.4, bulletSpeed:float=800, bulletSize:float=25, attackRange:float=700, sightDistance:float=900, moveSpeed:float=100, bounceSpeedGain:float=0.4):
+    def __init__(self, shooting:bool=True, attackRate:float=0.4, bulletSpeed:float=800, bulletSize:float=25, attackRange:float=500, sightDistance:float=900, moveSpeed:float=100, bounceSpeedGain:float=0.4):
         self.shooting = shooting
         self.attackRate = attackRate
         self.bulletSpeed = bulletSpeed
@@ -89,7 +88,6 @@ class EnemyConfig:
 class Enemy(PhysicsObject):
     def __init__(self, app, position:tuple, sprite_path:str, size:int, config:EnemyConfig)->None:
         super().__init__(app)
-        self.displaySurf = app.screen
         self.sprite = transform.scale(load(sprite_path), (size,size))
         self.body.position = position
         self.size = size
@@ -116,20 +114,20 @@ class Enemy(PhysicsObject):
             elapsed = time.time() - self.lastAttackTime
             if (elapsed >= self.getAttackCooldown()):
                 plrRay = self.app.space.segment_query_first(self.body.position, self.app.Player.body.position, self.config.bulletSize, self.app.Player.mask)
-                enemyRay = self.app.space.segment_query_first(self.body.position, self.app.Player.body.position, self.config.bulletSize, self.mask)
-                print(plrRay, enemyRay)
-                if True and not False:
+                enemyRay = self.app.space.segment_query_first(self.app.convertCoordinates(self.body.position), self.app.convertCoordinates(self.app.Player.body.position), self.config.bulletSize, self.mask)
+                if plrRay and not enemyRay:
                     self.lastAttackTime = time.time()
                     self.perform()
         elif (distanceToPlayer <= self.config.sightDistance):
             plrRay = self.app.space.segment_query_first(self.body.position, self.app.Player.body.position, self.size, self.app.Player.mask)
-            if True:
+            if plrRay:
                 self.move()
         super().update()
 
     def render(self)->None:
         bound = self.sprite.get_rect(center=self.app.convertCoordinates(self.body.position))
-        self.displaySurf.blit(self.sprite, bound)
+        self.app.screen.blit(self.sprite, bound)
+
         super().render()
 
     def move(self)->None:
