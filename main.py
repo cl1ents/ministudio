@@ -101,15 +101,9 @@ class App:
             self.screenSize = Vector2(self.screen.get_size())
     
     def render(self):
-        
-        sizeTarget = Vector2(RENDER_SIZE)*self.fovScale
-        if self.screenSize != sizeTarget:
-            self.screen = pygame.transform.scale(self.screen, sizeTarget) # pygame.Surface(sizeTarget).convert()
-            self.screenSize = Vector2(self.screen.get_size())
-        self.screen.fill("white")
+        self.screen.fill('white')
         #self.screen.blit(self.Background, (0,0))
-
-        #self.Baseplate.render()q
+        #self.Baseplate.render()
         self.Player.render()
         self.EnemyHandler.render()
         self.LevelLoader.render()

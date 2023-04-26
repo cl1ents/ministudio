@@ -18,8 +18,7 @@ class Camera:
         self.app = app
         player = app.Player
         self.position = player.body.position
-        self.xGoal = 0
-        self.yGoal = 0
+        self.goal = player.body.position
 
         self.fovGoal = 1
 
@@ -32,9 +31,9 @@ class Camera:
         seg = app.space.segment_query_first(player.body.position, player.body.position+Vec2d(0, -500), 2, self.mask)
 
         position = seg.point if seg else player.body.position+Vec2d(0, -500)
-        self.xGoal = position.x
-        self.yGoal = position.y+app.screenSize.y/4
-        self.position = Vec2d(self.position.x+(self.xGoal-self.position.x)*min(self.app.deltaTime*15, 1), self.position.y+(self.yGoal-self.position.y)*min(self.app.deltaTime*10, 1))
+        self.goal = Vec2d(position.x, position.y+app.screenSize.y/4)
+        self.goal += Vec2d(player.body.velocity.x * .2, player.body.velocity.y * .1)
+        self.position = Vec2d(self.position.x+(self.goal.x-self.position.x)*min(self.app.deltaTime*15, 1), self.position.y+(self.goal.y-self.position.y)*min(self.app.deltaTime*10, 1))
         
         self.fovGoal = self.CalculateFOV(int(player.body.velocity.get_distance((0,0))))
         

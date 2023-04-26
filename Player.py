@@ -40,7 +40,7 @@ class Player(PhysicsObject):
 
     moveForce = 4000
 
-    jumpForce = 68000
+    jumpForce = 120000
     crouchJumpMultiplier = 1.1
 
     jumpingCooldown = .3
@@ -180,7 +180,7 @@ class Player(PhysicsObject):
         self.crouch = state
         if state and not self.onGround:
             self.gravityLimit = self.fastGravityLimit
-            self.body.velocity = (self.body.velocity.x, -750)
+            self.body.velocity = (self.body.velocity.x, math.min(self.body.velocity.y, -750))
     
     def setGlide(self, state):
         self.gliding = state
@@ -235,14 +235,13 @@ class Player(PhysicsObject):
         self.debugLines.append([self.body.position, self.body.position+self.dashDirection*100])
 
         if self.jumpTick == 0 and floor:
-            # self.body.apply_impulse_at_local_point((0,500000))
             onGround = False
             if left:
                 localNormal = self.body.world_to_local(self.body.position+left.normal)
-                self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier, (-35,0))
+                self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier*.5, (-35,0))
             if right:
                 localNormal = self.body.world_to_local(self.body.position+right.normal)
-                self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier, (35,0))
+                self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier*.5, (35,0))
         elif floor and self.jumpTick > self.jumpingCooldown: # Stick to floor
             if left:
                 dip = 1 + (moveVector.x < 0) * .05
