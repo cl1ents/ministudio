@@ -2,6 +2,9 @@ from pygame.locals import *
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
+
+RENDER_SIZE = (1920, 1080)
+
 WINDOW_FLAGS = RESIZABLE | SHOWN
 
 FPS = 200

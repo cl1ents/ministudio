@@ -7,7 +7,7 @@ from pymunk.vec2d import Vec2d
 import pygame.draw as draw
 import pygame.font as font
 from pygame.locals import *
-from pygame import Vector2
+from pygame import Vector2, Rect
 
 from Player import Player
 from Camera import Camera
@@ -29,15 +29,15 @@ class App:
 
         self.cameraOffset = Vec2d(0,0)
         
-        self.screen = display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_FLAGS)
-        self.screenSize = Vector2(display.get_window_size())
+        self.realScreen = display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_FLAGS)
+        self.screen = pygame.Surface(RENDER_SIZE).convert()
+        self.screenSize = Vector2(self.screen.get_size())
+        self.screenRect = Rect(0, 0, self.screenSize.x, self.screenSize.y)
+        self.realScreenSize = Vector2(display.get_window_size())
 
         self.space = pymunk.Space()
-        self.space.gravity = 0, -1500
+        self.space.gravity = 0, -1800
         self.clock = pygame.time.Clock()
-        
-        self.surf = pygame.Surface(display.get_window_size())
-        self.options = pymunk.pygame_util.DrawOptions(self.surf)
 
         self.deltaTime = 1/FPS
         self.time = 0
@@ -73,7 +73,7 @@ class App:
         return x, y
     
     def convertCoordinatesFromScreen(self, point):
-        x, y = point[0], point[1]
+        x, y = (point[0]-self.screenRect.x)/(self.screenRect.w/self.screenSize.x), (point[1]-self.screenRect.y)/(self.screenRect.h/self.screenSize.y)
 
         x += self.cameraOffset[0]
         y += self.screenSize.y-self.cameraOffset[1]
@@ -96,11 +96,20 @@ class App:
         self.Baseplate.render()
         self.Player.render()
         self.EnemyHandler.render()
+
+        size = (self.realScreenSize.x, self.realScreenSize.x / 16 * 9)
+        if self.realScreenSize.y > size[1]:
+            size = (self.realScreenSize.y / 9 * 16, self.realScreenSize.y)
+        
+        screen_scaled = pygame.transform.smoothscale(self.screen, size)
+        self.screenRect = screen_scaled.get_rect(center=self.realScreenSize/2)
+        self.realScreen.blit(screen_scaled, self.screenRect)
         
     def run(self):
         while self.running:
             screen = self.screen
-            self.screenSize = Vector2(screen.get_width(), screen.get_height())
+            self.screenSize = Vector2(screen.get_size())
+            self.realScreenSize = Vector2(display.get_window_size())
 
             self.events()
             self.update()

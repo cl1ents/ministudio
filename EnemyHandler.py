@@ -18,7 +18,7 @@ class Bullet(PhysicsObject):
     def __init__(self, app, position:tuple, size:int, dir:Vec2d, speed:float, accelerationSpeed:float, maxBounces:int=1, bounceSpeedGain:float=0, maxLifeTime=MAX_BULLET_LIFETIME):
         super().__init__(app)
         # self.body.body_type=Body.STATIC
-        self.displaySurf = display.get_surface()
+        self.displaySurf = app.screen
         self.sprite = transform.scale(load('res/img/bullet.png'), (size,size))
         self.body.position = position
         self.direction = dir
@@ -89,7 +89,7 @@ class EnemyConfig:
 class Enemy(PhysicsObject):
     def __init__(self, app, position:tuple, sprite_path:str, size:int, config:EnemyConfig)->None:
         super().__init__(app)
-        self.displaySurf = display.get_surface()
+        self.displaySurf = app.screen
         self.sprite = transform.scale(load(sprite_path), (size,size))
         self.body.position = position
         self.size = size
@@ -137,8 +137,8 @@ class Enemy(PhysicsObject):
         self.body.velocity = dir * self.config.moveSpeed
 
     def perform(self)->None:
-        offset = Vec2d(0, 175/2)
-        dir = (self.app.Player.body.position + offset - self.body.position).normalized()
+        # offset = Vec2d(0, 175/2)
+        dir = (self.app.Player.body.local_to_world(self.app.Player.body.center_of_gravity) - self.body.position).normalized()
         bullet = Bullet(self.app, self.body.position, self.config.bulletSize, dir, self.config.bulletSpeed, 1.6, random.randint(1, 8), self.config.bounceSpeedGain)
         self.app.EnemyHandler.Bullets.append(bullet)
 

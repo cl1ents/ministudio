@@ -50,7 +50,9 @@ class Player(PhysicsObject):
     dashDuration = .5
     dashVelocity = 1200
 
-    gravityLimit = 2000
+    normalGravityLimit = 2000
+    glidingGravityLimit = 200
+    fastGravityLimit = 7000
 
     def __init__(self, app):
         super().__init__(app)
@@ -79,6 +81,7 @@ class Player(PhysicsObject):
         self.moveVector = Vector2(0,0)
 
         self.gliding = False
+        self.gravityLimit = self.normalGravityLimit
 
         self.crouch = False
 
@@ -88,6 +91,8 @@ class Player(PhysicsObject):
 
         self.dashTick = self.dashCooldown
         self.dashDirection = Vec2d(1,0)
+
+        self.onGround = False
         
         # Render
         self.boundingBox = pygame.Surface((100, 10), pygame.SRCALPHA)
@@ -128,10 +133,9 @@ class Player(PhysicsObject):
                         case pygame.K_d:
                             self.moveVector.x += 1
                         case pygame.K_s:
-                            self.crouch = True
-                            self.chara.unsafe_set_endpoints(self.chara.a, (0, 65))
+                            self.setCrouch(True)
                         case pygame.K_a:
-                            self.gliding = True
+                            self.setGlide(True)
                 case pygame.KEYUP:
                     match event.key:
                         case pygame.K_SPACE:
@@ -141,10 +145,9 @@ class Player(PhysicsObject):
                         case pygame.K_d:
                             self.moveVector.x -= 1
                         case pygame.K_s:
-                            self.crouch = False
-                            self.chara.unsafe_set_endpoints(self.chara.a, (0, 100))
+                            self.setCrouch(False)
                         case pygame.K_a:
-                            self.gliding = False
+                            self.setGlide(False)
 
     def debug_event(self, event):
         match event.type:
@@ -161,6 +164,9 @@ class Player(PhysicsObject):
         self.jumpKey = state
         if self.jumpTick > self.jumpingCooldown and state:
             self.jumpTick = 0
+        
+        if state and not self.onGround:
+            self.gravityLimit = self.normalGravityLimit
 
     def dash(self):
         if self.dashTick > self.dashDuration:
@@ -169,6 +175,17 @@ class Player(PhysicsObject):
     def stun(self, time):
         self.body.velocity = 0, self.body.velocity.y
         self.stunTick = -time
+
+    def setCrouch(self, state):
+        self.crouch = state
+        if state and not self.onGround:
+            self.gravityLimit = self.fastGravityLimit
+            self.body.velocity = (self.body.velocity.x, -750)
+    
+    def setGlide(self, state):
+        self.gliding = state
+        if state and not self.onGround:
+            self.gravityLimit = self.glidingGravityLimit
 
     def update(self):
         app = self.app
@@ -215,7 +232,7 @@ class Player(PhysicsObject):
             self.body.velocity += self.dashDirection*self.dashVelocity
         
         
-        self.debugLines.append([self.body.position, self.body.position+self.dashDirection])
+        self.debugLines.append([self.body.position, self.body.position+self.dashDirection*100])
 
         if self.jumpTick == 0 and floor:
             # self.body.apply_impulse_at_local_point((0,500000))
@@ -279,8 +296,9 @@ class Player(PhysicsObject):
 
         if onGround:
             self.imageIndex = 1 if self.crouch else 0
+            self.gravityLimit = self.normalGravityLimit
         else:
-            self.imageIndex = 3 if self.body.velocity.y > 0 else 4
+            self.imageIndex = 3 if self.body.velocity.y > 50 else 4
 
         if self.crouch and self.chara.b == (0, 100):
             self.chara.unsafe_set_endpoints(self.chara.a, (0, 65))
@@ -289,6 +307,8 @@ class Player(PhysicsObject):
 
         self.jumpTick += app.deltaTime
         self.dashTick += app.deltaTime
+
+        self.onGround = onGround
 
         super().update()
 
