@@ -50,6 +50,7 @@ class App:
         self.EnemyHandler = EnemyHandler(self)
         self.EnemyHandler.instantiateEnemy((300, 500), 64)
         self.Camera = Camera(self)
+        self.Background = pygame.image.load("bg.png")
 
         self.LevelLoader = LevelLoader(self)
         self.LevelLoader.loadSave()
@@ -99,7 +100,7 @@ class App:
     
     def render(self):
         self.screen.fill('white')
-
+        
         sizeTarget = Vector2(RENDER_SIZE)*self.fovScale
         if self.screenSize != sizeTarget:
             self.screen = pygame.transform.scale(self.screen, sizeTarget) # pygame.Surface(sizeTarget).convert()
