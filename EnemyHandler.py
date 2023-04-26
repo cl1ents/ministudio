@@ -127,15 +127,12 @@ class Enemy(PhysicsObject):
     def render(self)->None:
         bound = self.sprite.get_rect(center=self.app.convertCoordinates(self.body.position))
         self.app.screen.blit(self.sprite, bound)
-        pygame.draw.circle(self.app.screen, 'red', self.app.convertCoordinates(self.body.position), self.config.attackRange, 3)
-        pygame.draw.circle(self.app.screen, 'purple', self.app.convertCoordinates(self.body.position), self.config.sightDistance, 3)
 
         super().render()
 
     def move(self)->None:
         dir = (self.app.Player.body.position - self.body.position).normalized()
         self.body.velocity = dir * self.config.moveSpeed
-        print(self.body.velocity)
 
     def perform(self)->None:
         offset = Vec2d(0, 175/2)
