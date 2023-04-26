@@ -47,6 +47,7 @@ class Editor:
         self.physicsEnabled = False
         self.physicsPoints = [[]]
         self.physicsDrawIndex = 0
+        self.physicsStraightLines = False
         
         self.offGridEnabled = False
         self.offGridElements = []
@@ -263,6 +264,8 @@ class Editor:
         self.displaySurface.blit(self.supportLinesSurf, (0,0))
     
     def physicsDraw(self):
+        self.physicsStraightLines = key_pressed()[pygame.K_LSHIFT]
+
         if mouse_buttons()[0] and not self.clicked:
             self.clicked = True
             if key_pressed()[pygame.K_LCTRL]:
@@ -270,7 +273,17 @@ class Editor:
                     self.physicsDrawIndex += 1
                     self.physicsPoints.append([])
                     print("New Physics Shape")
-            self.physicsPoints[self.physicsDrawIndex].append((vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor))
+            else:
+                mousePoint = (vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor)
+                if len(self.physicsPoints[self.physicsDrawIndex]) >= 1 and self.physicsStraightLines:
+                    point = vector(self.physicsPoints[self.physicsDrawIndex][len(self.physicsPoints[self.physicsDrawIndex])-1])
+
+                    localPoint = mousePoint-point
+                    if abs(localPoint.x) > abs(localPoint.y):
+                        mousePoint = vector(mousePoint.x, point.y)
+                    elif abs(localPoint.y) > abs(localPoint.x):
+                        mousePoint = vector(point.x, mousePoint.y)
+                self.physicsPoints[self.physicsDrawIndex].append(mousePoint)
         elif not mouse_buttons()[0]:
             self.clicked = False
         if mouse_buttons()[2]:
@@ -291,6 +304,7 @@ class Editor:
                     self.physicsDrawIndex -= 1
                     print("Successfully removed!")
                     break
+        
     
     def gridDraw(self):
         if mouse_buttons()[0]:
@@ -385,6 +399,27 @@ class Editor:
                         offsetPointCloud.append(self.origin + vector(point)  * self.zoomFactor)
                     rect = draw.polygon(physicsSurf, Color(255,0,0), offsetPointCloud)
             physicsSurf.set_alpha(155)
+
+            if len(self.physicsPoints[self.physicsDrawIndex]) >= 1 and self.physicsStraightLines:
+                point = vector(self.physicsPoints[self.physicsDrawIndex][len(self.physicsPoints[self.physicsDrawIndex])-1])
+                mousePoint = (vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor)
+
+                localPoint = mousePoint-point
+                if abs(localPoint.x) > abs(localPoint.y):
+                    mousePoint = vector(mousePoint.x, point.y)
+                elif abs(localPoint.y) > abs(localPoint.x):
+                    mousePoint = vector(point.x, mousePoint.y)
+
+                draw.circle(physicsSurf, 'red', self.origin + mousePoint  * self.zoomFactor, 10)
+
+
+            if len(self.physicsPoints[self.physicsDrawIndex]) > 2:
+                pointCloud = self.physicsPoints[self.physicsDrawIndex]
+                offsetPointCloud = []
+                for point in pointCloud:
+                    offsetPointCloud.append(self.origin + vector(point)  * self.zoomFactor)
+                rect = draw.polygon(physicsSurf, Color(255,255,0), offsetPointCloud)
+
             self.displaySurface.blit(physicsSurf, (0,0))
     
     def run(self, dt:float)->None:
