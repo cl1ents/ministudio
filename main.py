@@ -11,7 +11,7 @@ from pygame import Vector2
 
 from Player import Player
 from Camera import Camera
-from Enemy import Enemy
+from EnemyHandler import EnemyHandler
 from Baseplate import Baseplate
 from constants import *
 
@@ -45,9 +45,9 @@ class App:
         
         self.Baseplate = Baseplate(self)
         self.Player = Player(self)
-        self.Enemies = []
-        self.Enemies.append(Enemy(self, (300,200), 64))
-        self.Bullets = []
+        self.EnemyHandler = EnemyHandler(self)
+        self.EnemyHandler.instantiateEnemy((300, 500), 64)
+        #self.EnemyHandler.instantiateEnemy((600, 60), 64)
         self.Camera = Camera(self)
 
         self.saveFile = "Level #1.json"
@@ -85,15 +85,7 @@ class App:
     def update(self):
         self.Baseplate.update()
         self.Player.update()
-
-        for enemy in self.Enemies:
-            enemy.update()
-
-        for bullet in self.Bullets:
-            bullet.update()
-            if bullet.isOver():
-                self.Bullets.remove(bullet)
-                self.space.remove(bullet.body, bullet.boundingBox)
+        self.EnemyHandler.update()
 
         self.space.step(self.deltaTime)
 
@@ -103,12 +95,7 @@ class App:
         self.screen.fill('white')
         self.Baseplate.render()
         self.Player.render()
-
-        for enemy in self.Enemies:
-            enemy.render()
-
-        for bullet in self.Bullets:
-            bullet.render()
+        self.EnemyHandler.render()
         
     def run(self):
         while self.running:

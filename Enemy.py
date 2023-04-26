@@ -108,6 +108,3 @@ class Enemy(PhysicsObject):
         dir = (self.app.Player.body.local_to_world((0, 175/2)) - self.body.position).normalized()
         bullet = Bullet(self.app, self.body.position, self.bulletSize, dir, self.bulletSpeed, 1.6)
         self.app.Bullets.append(bullet)
-
-    def die(self)->None:
-        print("Enemy died !")
