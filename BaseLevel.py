@@ -6,6 +6,7 @@ import pygame.draw as draw
 
 from constants import *
 from PhysicsObject import PhysicsObject
+from Helpers import isOffScreen
 
 from pymunk.autogeometry import convex_decomposition
 
@@ -26,7 +27,7 @@ class BaseLevel(PhysicsObject): # SANDBOX!
     def event(self, event):
         super.event(event)
 
-    def createPoly(self, pointList):
+    def createPoly(self, pointList, color = (0, 0, 0)):
         if len(pointList) > 2:
             pointList.append(pointList[0])
             pointList.reverse()
@@ -46,7 +47,7 @@ class BaseLevel(PhysicsObject): # SANDBOX!
                 poly.friction = 1
                 poly.filter = self.filter
                 poly.collision_type = COLLTYPE_ENV
-                poly.color = (0, 0, 0)
+                poly.color = color
                 self.polygons.append(poly)
                 self.app.space.add(poly)
 
@@ -59,7 +60,14 @@ class BaseLevel(PhysicsObject): # SANDBOX!
 
     def render(self):
         for poly in self.polygons:
-            draw.polygon(self.app.screen, poly.color, [(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
+            polyToDraw = []
+            offscreenCount = 0
+            for i in poly.get_vertices():
+                pos = self.app.convertCoordinates(i)
+                polyToDraw.append(pos)
+                offscreenCount += isOffScreen(self.app.screenSize, pos)
+            print(offscreenCount)
+            draw.polygon(self.app.screen, poly.color, polyToDraw)
         # draw.rect(self.app.screen, "Blue", self.getRect())
 
     """
