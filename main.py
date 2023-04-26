@@ -51,7 +51,7 @@ class App:
         self.EnemyHandler.instantiateEnemy((300, 500), 64)
         self.Camera = Camera(self)
 
-        self.LevelLoader = LevelLoader(self)
+        self.LevelLoader = LevelLoader(self, "Level #2.json")
         self.LevelLoader.loadSave()
 
     def events(self):

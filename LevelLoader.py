@@ -9,6 +9,7 @@ from BaseLevel import BaseLevel
 from random import randint
 from Helpers import  clamp01, colorLerp
 from easing_functions import *
+from EnemyHandler import Enemy, EnemyConfig
 
 class LevelLoader:
     def __init__(self, app, saveName="Level #1.json"):
@@ -30,6 +31,7 @@ class LevelLoader:
         self.colorSwitchAlpha = 1
         self.colorSwitchDelay = 5
         self.createPolygons()
+        self.spawnEnemies()
 
     def loadSave(self):
         path = os.path.join("saves/", self.saveName)
@@ -74,7 +76,7 @@ class LevelLoader:
         saveData['enemies'] = []
         for enemy in data['enemies']:
             position = enemy['position'].split(',')
-            position[0], position[1] = float(position[0]), float(position[1])
+            position[0], position[1] = float(position[0]), -float(position[1])
 
             saveData['enemies'].append({
                 'position': position,
@@ -84,9 +86,12 @@ class LevelLoader:
         return saveData
     
     def createPolygons(self):
-        c = 0
         for shape in self.data['physics-shapes']:
             self.BaseLevel.createPoly(shape)
+
+    def spawnEnemies(self):
+        for enemy in self.data['enemies']:
+            self.app.EnemyHandler.Enemies.append(Enemy(self.app, self.app.convertCoordinates(enemy['position']), "res/img/mouche.png", 64, EnemyConfig()))
 
     def render(self):
         if not self.BaseLevel: return

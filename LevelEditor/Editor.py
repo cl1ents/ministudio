@@ -1,4 +1,4 @@
-import sys, os, json, time
+import sys, os, json, time, math
 
 import pygame
 import pygame.display as display
@@ -19,7 +19,7 @@ from editor_constants import *
 from editor_helpers import clamp
 from Button import Button
 
-CW_SAVE = "Level #1.json"
+CW_SAVE = "Level #2.json"
 
 class Editor:
     def __init__(self)->None:
@@ -148,6 +148,8 @@ class Editor:
         with open(path, 'r') as f:
             data = json.load(f)
             
+        self.physicsDrawIndex = data['drawIndex'] + 1
+
         for key, value in data['tiles'].items():
             # Formatting & converting coords to int
             coords = key.split(',')
@@ -192,7 +194,8 @@ class Editor:
                 "tiles": {},
                 "off-grid": [],
                 "physics": [],
-                "enemies": []
+                "enemies": [],
+                "drawIndex": self.physicsDrawIndex
             }
             
             for key, value in self.tiles.items():
@@ -249,15 +252,34 @@ class Editor:
         self.displaySurface.blit(self.supportLinesSurf, (0,0))
     
     def physicsDraw(self):
-        if mouse_buttons()[0]:
-            if not self.clicked:
-                self.clicked = True
-                self.physicsPoints[self.physicsDrawIndex].append((vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor))
-        else:
+        if mouse_buttons()[0] and not self.clicked:
+            self.clicked = True
+            if key_pressed()[pygame.K_LCTRL]:
+                if len(self.physicsPoints[self.physicsDrawIndex]) > 2:
+                    self.physicsDrawIndex += 1
+                    self.physicsPoints.append([])
+                    print("New Physics Shape")
+            self.physicsPoints[self.physicsDrawIndex].append((vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor))
+        elif not mouse_buttons()[0]:
             self.clicked = False
-        if mouse_buttons()[2] and len(self.physicsPoints[self.physicsDrawIndex]) > 2:
-            self.physicsDrawIndex += 1
-            self.physicsPoints.append([])
+        if mouse_buttons()[2]:
+            for cloudPoint in self.physicsPoints:
+                if len(cloudPoint) <= 2: continue
+                minX, maxX, minY, maxY, w, h = math.inf, -math.inf, math.inf, -math.inf, None, None
+                for point in cloudPoint:
+                    offset = (vector(point) + self.origin) * self.zoomFactor
+                    minX = min(minX, offset.x)
+                    maxX = max(maxX, offset.x)
+                    minY = min(minY, offset.y)
+                    maxY = max(maxY, offset.y)
+                w = maxX - minX
+                h = maxY - minY
+                polygon_rect = Rect(minX, minY, w, h)
+                if polygon_rect.collidepoint(mouse_pos()):
+                    self.physicsPoints.remove(cloudPoint)
+                    self.physicsDrawIndex -= 1
+                    print("Successfully removed!")
+                    break
     
     def gridDraw(self):
         if mouse_buttons()[0]:
@@ -298,13 +320,13 @@ class Editor:
             loaded_surf = load('res/img/mouche.png').convert_alpha()
             rescaled = transform.scale(loaded_surf, vector(1,1) * DEFAULT_TILE_SIZE * self.zoomFactor)
             self.enemies.append({
-                "position": vector(mouse_pos()) - self.origin - vector(rescaled.get_size()) * 0.5,
+                "position": (vector(mouse_pos()) - self.origin - vector(rescaled.get_size()) * 0.5) * (1 / self.zoomFactor),
                 "type": 1
             })
         if mouse_buttons()[2]:
             for i in range(len(self.enemies)):
                 enemy = self.enemies[i]
-                rect = Rect(enemy['position'], DEFAULT_TILE_SIZE)
+                rect = Rect(enemy['position'], (vector(1,1) * DEFAULT_TILE_SIZE))
                 if rect.collidepoint(mouse_pos()):
                     self.lastDraw = time.time()
                     del self.enemies[i]
@@ -349,7 +371,7 @@ class Editor:
                     offsetPointCloud = []
                     for point in pointCloud:
                         offsetPointCloud.append(self.origin + vector(point)  * self.zoomFactor)
-                    draw.polygon(physicsSurf, Color(255,0,0), offsetPointCloud)
+                    rect = draw.polygon(physicsSurf, Color(255,0,0), offsetPointCloud)
             physicsSurf.set_alpha(155)
             self.displaySurface.blit(physicsSurf, (0,0))
     
