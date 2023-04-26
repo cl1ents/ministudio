@@ -19,7 +19,7 @@ from editor_constants import *
 from editor_helpers import clamp
 from Button import Button
 
-CW_SAVE = "Level #3.json"
+CW_SAVE = "Level #4.json"
 
 class Editor:
     enemy_types_images = ["enemyA.png", "enemyB.png", "enemyC.png", "enemyD.png"]
@@ -73,6 +73,8 @@ class Editor:
 
         self.enemiesButton = Button("res/img/btn/enemies_button.png", (30, 350))
         self.enemiesButton.bind(self.enableEnemies)
+
+        self.playerSprite = load("res/img/idle.png").convert_alpha()
         
         self.loadSave()
 
@@ -398,3 +400,8 @@ class Editor:
         self.offGridButton.draw()
         self.enemiesButton.draw()
         draw.circle(self.displaySurface, 'red', self.origin, 10)
+
+        playerSprite = pygame.transform.smoothscale(self.playerSprite, vector(175,175) * self.zoomFactor)
+        playerRect = playerSprite.get_rect(center = self.origin+vector(0,-75*self.zoomFactor))
+        self.displaySurface.blit(playerSprite, playerRect)
+        
