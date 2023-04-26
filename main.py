@@ -44,12 +44,15 @@ class App:
         self.deltaTime = 1/FPS
         self.time = 0
         self.running = True
+        self.menu = True
         
         #self.Baseplate = Baseplate(self)
         self.Player = Player(self)
         self.EnemyHandler = EnemyHandler(self)
         self.EnemyHandler.instantiateEnemy((300, 500), 64)
         self.Camera = Camera(self)
+        self.Background = pygame.image.load("bg.png")
+        self.startScreen = pygame.image.load("rageon.png")
 
         self.LevelLoader = LevelLoader(self, "Level #2.json")
         self.LevelLoader.loadSave()
@@ -91,15 +94,15 @@ class App:
         self.space.step(self.deltaTime)
 
         self.Camera.update()
-        self.fovScale = self.Camera.CalculateFOV(int(self.Player.body.velocity.get_distance((0,0))))
-    
-    def render(self):
+        
         sizeTarget = Vector2(RENDER_SIZE)*self.fovScale
         if self.screenSize != sizeTarget:
-            self.screen = pygame.Surface(sizeTarget).convert()
+            self.screen = pygame.transform.scale(self.screen, sizeTarget) # pygame.Surface(sizeTarget).convert()
             self.screenSize = Vector2(self.screen.get_size())
-        
+    
+    def render(self):
         self.screen.fill('white')
+        #self.screen.blit(self.Background, (0,0))
         #self.Baseplate.render()
         self.Player.render()
         self.EnemyHandler.render()

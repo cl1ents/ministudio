@@ -33,22 +33,22 @@ class Player(PhysicsObject):
     leftRayOffset = Vec2d(-35,0)
     rightRayOffset = Vec2d(35,0)
     
-    rayDistance = 90
+    rayDistance = 80
 
     rayAlpha = 1-50/rayDistance
     rayAlphaCrouch = 1-25/rayDistance
 
     moveForce = 4000
 
-    jumpForce = 68000
+    jumpForce = 120000
     crouchJumpMultiplier = 1.1
 
     jumpingCooldown = .3
     airControlCooldown = .02
 
-    dashCooldown = 1
-    dashDuration = .5
-    dashVelocity = 1200
+    dashCooldown = .5
+    dashDuration = .3
+    dashVelocity = 1500
 
     normalGravityLimit = 2000
     glidingGravityLimit = 200
@@ -169,7 +169,7 @@ class Player(PhysicsObject):
             self.gravityLimit = self.normalGravityLimit
 
     def dash(self):
-        if self.dashTick > self.dashDuration:
+        if self.dashTick > self.dashCooldown:
             self.dashTick = 0
 
     def stun(self, time):
@@ -180,7 +180,7 @@ class Player(PhysicsObject):
         self.crouch = state
         if state and not self.onGround:
             self.gravityLimit = self.fastGravityLimit
-            self.body.velocity = (self.body.velocity.x, -750)
+            self.body.velocity = (self.body.velocity.x, math.min(self.body.velocity.y, -750))
     
     def setGlide(self, state):
         self.gliding = state
@@ -235,14 +235,13 @@ class Player(PhysicsObject):
         self.debugLines.append([self.body.position, self.body.position+self.dashDirection*100])
 
         if self.jumpTick == 0 and floor:
-            # self.body.apply_impulse_at_local_point((0,500000))
             onGround = False
             if left:
                 localNormal = self.body.world_to_local(self.body.position+left.normal)
-                self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier, (-35,0))
+                self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier*.5, (-35,0))
             if right:
                 localNormal = self.body.world_to_local(self.body.position+right.normal)
-                self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier, (35,0))
+                self.body.apply_force_at_local_point(localNormal*self.jumpForce*jumpMultiplier*.5, (35,0))
         elif floor and self.jumpTick > self.jumpingCooldown: # Stick to floor
             if left:
                 dip = 1 + (moveVector.x < 0) * .05
@@ -288,9 +287,14 @@ class Player(PhysicsObject):
 
             fullAngle = angle # Vec2d(0,1).rotated(self.body.angle).get_angle_between(Vec2d(0,1).rotated(angle))
             self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.004*(count/2)
-        elif center:
+        elif center and not self.gliding:
             fullAngle = Vec2d(0,1).rotated(self.body.angle).get_angle_between(center.normal)
-            self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.001
+            self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.002
+            self.body.angular_velocity *= .95
+        elif self.gliding:
+            fullAngle = Vec2d(0,1).rotated(self.body.angle).get_angle_between(Vec2d(0,1))
+            self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.02
+            self.body.angular_velocity *= .95
 
         self.body.velocity = self.body.velocity.x, max(self.body.velocity.y, -self.gravityLimit)
 
@@ -299,6 +303,8 @@ class Player(PhysicsObject):
             self.gravityLimit = self.normalGravityLimit
         else:
             self.imageIndex = 3 if self.body.velocity.y > 50 else 4
+        
+        self.imageIndex = 2 if self.dashTick < self.dashDuration else self.imageIndex
 
         if self.crouch and self.chara.b == (0, 100):
             self.chara.unsafe_set_endpoints(self.chara.a, (0, 65))
