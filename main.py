@@ -47,7 +47,6 @@ class App:
         self.Player = Player(self)
         self.EnemyHandler = EnemyHandler(self)
         self.EnemyHandler.instantiateEnemy((300, 500), 64)
-        #self.EnemyHandler.instantiateEnemy((600, 60), 64)
         self.Camera = Camera(self)
 
         self.saveFile = "Level #1.json"
