@@ -6,6 +6,7 @@ from pymunk.vec2d import Vec2d
 
 import pygame.draw as draw
 import pygame.font as font
+from pygame.image import load
 from pygame.locals import *
 from pygame import Vector2, Rect
 
@@ -24,6 +25,8 @@ class App:
         font.init()
 
         display.set_caption("Rageon")
+        iconSurf = load("res/img/rageon.png")
+        display.set_icon(iconSurf)
 
         self.comicsans = font.SysFont("Comic Sans MS", 20)
 
@@ -49,12 +52,11 @@ class App:
         #self.Baseplate = Baseplate(self)
         self.Player = Player(self)
         self.EnemyHandler = EnemyHandler(self)
-        self.EnemyHandler.instantiateEnemy((300, 500), 64)
         self.Camera = Camera(self)
-        self.Background = pygame.image.load("bg.png")
-        self.startScreen = pygame.image.load("rageon.png")
+        self.Background = pygame.image.load("res/img/bg.png")
+        self.startScreen = pygame.image.load("res/img/rageon.png")
 
-        self.LevelLoader = LevelLoader(self, "Level #2.json")
+        self.LevelLoader = LevelLoader(self, "Level #3.json")
         self.LevelLoader.loadSave()
 
     def events(self):

@@ -114,7 +114,7 @@ class Enemy(PhysicsObject):
         self.body.angular_velocity = 0
 
         distanceToPlayer = (self.app.Player.body.position - self.body.position).length
-        if (distanceToPlayer <= self.config.attackRange):
+        if (distanceToPlayer <= self.config.attackRange and self.config.shooting):
             elapsed = time.time() - self.lastAttackTime
             if (elapsed >= self.getAttackCooldown()):
                 plrRay = self.app.space.segment_query_first(self.body.position, self.app.Player.body.position, self.config.bulletSize, self.app.Player.mask)

@@ -12,6 +12,8 @@ from easing_functions import *
 from EnemyHandler import Enemy, EnemyConfig
 
 class LevelLoader:
+    enemy_types_images = ["enemyA.png", "enemyB.png", "enemyC.png", "enemyD.png"]
+
     def __init__(self, app, saveName="Level #1.json"):
         self.app = app
         self.saveName = saveName
@@ -91,7 +93,31 @@ class LevelLoader:
 
     def spawnEnemies(self):
         for enemy in self.data['enemies']:
-            self.app.EnemyHandler.Enemies.append(Enemy(self.app, self.app.convertCoordinates(enemy['position']), "res/img/mouche.png", 64, EnemyConfig()))
+            config_0 = EnemyConfig()
+            config_1= EnemyConfig(
+                shooting=False,
+                attackRange=0,
+                sightDistance=700,
+                moveSpeed=225
+            )
+            config_2 = EnemyConfig(
+                attackRate=.6,
+                bulletSpeed=700,
+                bulletSize=35,
+                attackRange=600,
+                sightDistance=1300, moveSpeed=80, bounceSpeedGain=0.2
+            )
+            config_3 = EnemyConfig(
+                attackRate=1.8,
+                bulletSpeed=2000,
+                bulletSize=10,
+                attackRange=1000,
+                sightDistance=1500,
+                moveSpeed=300,
+                bounceSpeedGain=0.9
+            )
+            configs = [config_0, config_1, config_2, config_3]
+            self.app.EnemyHandler.Enemies.append(Enemy(self.app, self.app.convertCoordinates(enemy['position']), "res/img/"+self.enemy_types_images[enemy['type']], 64*3, configs[enemy['type']]))
 
     def render(self):
         if not self.BaseLevel: return

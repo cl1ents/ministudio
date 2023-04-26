@@ -180,7 +180,7 @@ class Player(PhysicsObject):
         self.crouch = state
         if state and not self.onGround:
             self.gravityLimit = self.fastGravityLimit
-            self.body.velocity = (self.body.velocity.x, math.min(self.body.velocity.y, -750))
+            self.body.velocity = (self.body.velocity.x, min(self.body.velocity.y, -750))
     
     def setGlide(self, state):
         self.gliding = state

@@ -19,9 +19,11 @@ from editor_constants import *
 from editor_helpers import clamp
 from Button import Button
 
-CW_SAVE = "Level #2.json"
+CW_SAVE = "Level #3.json"
 
 class Editor:
+    enemy_types_images = ["enemyA.png", "enemyB.png", "enemyC.png", "enemyD.png"]
+
     def __init__(self)->None:
         self.displaySurface = display.get_surface()
         
@@ -51,6 +53,7 @@ class Editor:
 
         self.enemiesEnabled = False
         self.enemies = []
+        self.enemyDrawIndex = 0
 
         self.drawDelay = 0.2
         self.lastDraw = time.time() - self.drawDelay
@@ -112,6 +115,7 @@ class Editor:
                 pygame.quit()
                 sys.exit()
             self.panInput(event)
+            self.changeEnemyIndex(event)
             self.draw()
 
     def panInput(self, event:pygame.event.Event)->None:
@@ -132,6 +136,11 @@ class Editor:
         # Panning update
         if self.panActive:
             self.origin = vector(mouse_pos()) - self.panOffset
+
+    def changeEnemyIndex(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_e:
+                self.enemyDrawIndex = (self.enemyDrawIndex + 1) % 4
 
     def loadSave(self, saveName:str=CW_SAVE)->None:
         path = os.path.join("saves/", saveName)
@@ -317,11 +326,12 @@ class Editor:
         if time.time() - self.lastDraw < self.drawDelay: return
         if mouse_buttons()[0]:
             self.lastDraw = time.time()
-            loaded_surf = load('res/img/mouche.png').convert_alpha()
+            loaded_surf = load("res/img/"+self.enemy_types_images[self.enemyDrawIndex]).convert_alpha()
             rescaled = transform.scale(loaded_surf, vector(1,1) * DEFAULT_TILE_SIZE * self.zoomFactor)
+            print(vector(1,1) * DEFAULT_TILE_SIZE * self.zoomFactor)
             self.enemies.append({
-                "position": (vector(mouse_pos()) - self.origin - vector(rescaled.get_size()) * 0.5) * (1 / self.zoomFactor),
-                "type": 1
+                "position": (vector(mouse_pos()) - self.origin - vector(DEFAULT_TILE_SIZE) * 0.5) * (1 / self.zoomFactor),
+                "type": self.enemyDrawIndex
             })
         if mouse_buttons()[2]:
             for i in range(len(self.enemies)):
@@ -359,7 +369,7 @@ class Editor:
             
         for enemy in self.enemies:
             pos = self.origin + vector(enemy['position']) * self.zoomFactor
-            surf = transform.scale(load("res/img/mouche.png"), vector(1,1) * DEFAULT_TILE_SIZE * self.zoomFactor)
+            surf = transform.scale(load('res/img/'+self.enemy_types_images[enemy['type']]), vector(1,1) * DEFAULT_TILE_SIZE * self.zoomFactor)
             self.displaySurface.blit(surf, pos)
 
         if self.physicsEnabled:
