@@ -24,6 +24,9 @@ def clamp01(num):
 def reflect(inDirection:Vec2d, inNormal:Vec2d):
     return -2 * inNormal.dot(inDirection) * inNormal + inDirection
 
+def isOffScreen(size, pos):
+    return size[0] > pos[0] or size[0] < 0 or size[1] > pos[1] or size[1] < 0
+
 """ Old raycasting!
 def raycast(origin: Vector2, target: Vector2, collisions: list, maxsteps=10):
     casting = True

@@ -21,6 +21,8 @@ class Camera:
         self.xGoal = 0
         self.yGoal = 0
 
+        self.fovGoal = 1
+
         self.velocity = Vec2d(0,0)
 
     def update(self):
@@ -34,6 +36,9 @@ class Camera:
         self.yGoal = position.y+app.screenSize.y/4
         self.position = Vec2d(self.position.x+(self.xGoal-self.position.x)*min(self.app.deltaTime*15, 1), self.position.y+(self.yGoal-self.position.y)*min(self.app.deltaTime*10, 1))
         
+        self.fovGoal = self.CalculateFOV(int(player.body.velocity.get_distance((0,0))))
+        
+        app.fovScale = app.fovScale + (self.fovGoal-app.fovScale)*min(self.app.deltaTime*6, 1)
         #targetVelocity = 
         #self.velocity = self.velocity+(player.body.velocity-self.velocity)*min(self.app.deltaTime*15, 1)
         #self.position += self.velocity * self.app.deltaTime
