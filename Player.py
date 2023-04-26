@@ -129,6 +129,7 @@ class Player(PhysicsObject):
                             self.moveVector.x += 1
                         case pygame.K_s:
                             self.crouch = True
+                            self.chara.unsafe_set_endpoints(self.chara.a, (0, 65))
                         case pygame.K_a:
                             self.gliding = True
                 case pygame.KEYUP:
@@ -141,6 +142,7 @@ class Player(PhysicsObject):
                             self.moveVector.x -= 1
                         case pygame.K_s:
                             self.crouch = False
+                            self.chara.unsafe_set_endpoints(self.chara.a, (0, 100))
                         case pygame.K_a:
                             self.gliding = False
 
@@ -181,7 +183,7 @@ class Player(PhysicsObject):
 
         self.stunTick += app.deltaTime
 
-        distanceMultiplication = self.rayAlphaCrouch if self.crouch else self.rayAlpha
+        distanceMultiplication = (self.rayAlphaCrouch if self.crouch else self.rayAlpha) + math.sin(app.time*3)*.075
         jumpMultiplier = self.crouchJumpMultiplier if self.crouch else 1
         
         # leftDip = self.moveVector.x > 0
@@ -280,7 +282,10 @@ class Player(PhysicsObject):
         else:
             self.imageIndex = 3 if self.body.velocity.y > 0 else 4
 
-        self.chara.b = (0, 75) if self.crouch else (0, 100)
+        if self.crouch and self.chara.b == (0, 100):
+            self.chara.unsafe_set_endpoints(self.chara.a, (0, 65))
+        elif not self.crouch and self.chara.b == (0, 65):
+            self.chara.unsafe_set_endpoints(self.chara.a, (0, 100))
 
         self.jumpTick += app.deltaTime
         self.dashTick += app.deltaTime

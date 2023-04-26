@@ -68,6 +68,7 @@ class Baseplate(PhysicsObject): # SANDBOX!
                 poly.friction = 1
                 poly.filter = self.filter
                 poly.collision_type = COLLTYPE_ENV
+                poly.color = (0, 0, 0)
                 self.polygons.append(poly)
                 self.app.space.add(poly)
 
@@ -82,7 +83,7 @@ class Baseplate(PhysicsObject): # SANDBOX!
 
     def render(self):
         for poly in self.polygons:
-            draw.polygon(self.app.screen, (0, 0, 0),[(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
+            draw.polygon(self.app.screen, poly.color, [(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
         # draw.rect(self.app.screen, "Blue", self.getRect())
 
     """
