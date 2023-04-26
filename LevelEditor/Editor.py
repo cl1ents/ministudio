@@ -295,8 +295,8 @@ class Editor:
     def gridDraw(self):
         if mouse_buttons()[0]:
             self.tiles[self.getCurrentCell()] = {
-                'surf': load('res/img/capybara.png').convert_alpha(),
-                'path': 'res/img/capybara.png',
+                'surf': load('res/img/enemyA.png').convert_alpha(),
+                'path': 'res/img/enemyA.png',
                 'tiling': self.tileSize
             }
         if mouse_buttons()[2]: # Right click
@@ -308,11 +308,11 @@ class Editor:
         if time.time() - self.lastDraw < self.drawDelay: return
         if mouse_buttons()[0]:
             self.lastDraw = time.time()
-            loaded_surf = load('res/img/capybara.png').convert_alpha()
-            rescaled = transform.scale(loaded_surf, vector(loaded_surf.get_size()) * self.zoomFactor)
+            loaded_surf = load('res/img/enemyA.png').convert_alpha()
+            rescaled = transform.scale(loaded_surf, vector(DEFAULT_TILE_SIZE,DEFAULT_TILE_SIZE) * self.zoomFactor)
             self.offGridElements.append({
                 'surf': loaded_surf,
-                'path': 'res/img/capybara.png',
+                'path': 'res/img/enemyA.png',
                 'position': vector(mouse_pos()) - self.origin - vector(rescaled.get_size()) * 0.5
             })
         if mouse_buttons()[2]:
@@ -360,7 +360,7 @@ class Editor:
     def drawTiles(self)->None:
         for value in self.offGridElements:
             pos = self.origin + vector(value['position']) * self.zoomFactor
-            surf = transform.scale(value['surf'], vector(value['surf'].get_size()) * self.zoomFactor)
+            surf = transform.scale(value['surf'], vector(1,1) * DEFAULT_TILE_SIZE * self.zoomFactor)
             self.displaySurface.blit(surf, pos)
         
         for key, value in self.tiles.items():
