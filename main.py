@@ -50,6 +50,7 @@ class App:
         self.EnemyHandler = EnemyHandler(self)
         self.EnemyHandler.instantiateEnemy((300, 500), 64)
         self.Camera = Camera(self)
+        self.Background = pygame.image.load("bg.png")
 
         self.LevelLoader = LevelLoader(self)
         self.LevelLoader.loadSave()
@@ -100,6 +101,7 @@ class App:
             self.screenSize = Vector2(self.screen.get_size())
         
         self.screen.fill('white')
+        #self.screen.blit(self.Background, self.screenRect)
         #self.Baseplate.render()
         self.Player.render()
         self.EnemyHandler.render()
