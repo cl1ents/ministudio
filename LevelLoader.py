@@ -7,7 +7,7 @@ from pygame import Color
 from BaseLevel import BaseLevel
 
 from random import randint
-from Helpers import  clamp01, colorLerp
+from Helpers import  clamp01, colorLerp, isOffScreen
 from easing_functions import *
 
 class LevelLoader:
@@ -92,7 +92,15 @@ class LevelLoader:
         if not self.BaseLevel: return
 
         for poly in self.BaseLevel.polygons:
-            draw.polygon(self.app.screen, self.color, [(self.app.convertCoordinates(i)) for i in poly.get_vertices()])
+            polyToDraw = []
+            offscreenCount = 0
+            for i in poly.get_vertices():
+                pos = self.app.convertCoordinates(i)
+                polyToDraw.append(pos)
+                offscreenCount += not isOffScreen(self.app.screenSize, pos)
+            if len(polyToDraw) != offscreenCount:
+                draw.polygon(self.app.screen, self.color, polyToDraw)
+            # else: print("offscreen")
 
     def update(self):
         if not self.BaseLevel: return
