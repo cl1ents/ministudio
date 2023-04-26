@@ -33,7 +33,7 @@ class Player(PhysicsObject):
     leftRayOffset = Vec2d(-35,0)
     rightRayOffset = Vec2d(35,0)
     
-    rayDistance = 90
+    rayDistance = 80
 
     rayAlpha = 1-50/rayDistance
     rayAlphaCrouch = 1-25/rayDistance
@@ -47,8 +47,8 @@ class Player(PhysicsObject):
     airControlCooldown = .02
 
     dashCooldown = .5
-    dashDuration = .2
-    dashVelocity = 1200
+    dashDuration = .3
+    dashVelocity = 1500
 
     normalGravityLimit = 2000
     glidingGravityLimit = 200
