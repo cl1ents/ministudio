@@ -1,4 +1,4 @@
-import json, os
+import json, os, time
 
 from pygame.image import load
 import pygame.draw as draw
@@ -17,6 +17,8 @@ class LevelLoader:
         
         self.BaseLevel = BaseLevel(app)
         self.color = (255,0,120)
+        self.colorSwitchDelay = 7
+        self.colorSwitchTime = time.time() - self.colorSwitchDelay
         self.createPolygons()
 
     def loadSave(self):
@@ -85,3 +87,5 @@ class LevelLoader:
     def update(self):
         if not self.BaseLevel: return
         self.BaseLevel.update()
+
+        self.

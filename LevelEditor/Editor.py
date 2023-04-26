@@ -38,6 +38,7 @@ class Editor:
         # tileSize
         self.tileSize = 64
         self.zoomFactor = 1
+        self.clicked = False
 
         self.tiles = {}
         
@@ -249,7 +250,11 @@ class Editor:
     
     def physicsDraw(self):
         if mouse_buttons()[0]:
-            self.physicsPoints[self.physicsDrawIndex].append((vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor))
+            if not self.clicked:
+                self.clicked = True
+                self.physicsPoints[self.physicsDrawIndex].append((vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor))
+        else:
+            self.clicked = False
         if mouse_buttons()[2] and len(self.physicsPoints[self.physicsDrawIndex]) > 2:
             self.physicsDrawIndex += 1
             self.physicsPoints.append([])
