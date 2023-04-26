@@ -46,8 +46,8 @@ class Player(PhysicsObject):
     jumpingCooldown = .3
     airControlCooldown = .02
 
-    dashCooldown = 1
-    dashDuration = .5
+    dashCooldown = .5
+    dashDuration = .2
     dashVelocity = 1200
 
     normalGravityLimit = 2000
@@ -169,7 +169,7 @@ class Player(PhysicsObject):
             self.gravityLimit = self.normalGravityLimit
 
     def dash(self):
-        if self.dashTick > self.dashDuration:
+        if self.dashTick > self.dashCooldown:
             self.dashTick = 0
 
     def stun(self, time):
@@ -288,9 +288,14 @@ class Player(PhysicsObject):
 
             fullAngle = angle # Vec2d(0,1).rotated(self.body.angle).get_angle_between(Vec2d(0,1).rotated(angle))
             self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.004*(count/2)
-        elif center:
+        elif center and not self.gliding:
             fullAngle = Vec2d(0,1).rotated(self.body.angle).get_angle_between(center.normal)
-            self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.001
+            self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.002
+            self.body.angular_velocity *= .95
+        elif self.gliding:
+            fullAngle = Vec2d(0,1).rotated(self.body.angle).get_angle_between(Vec2d(0,1))
+            self.body.angular_velocity += ((fullAngle)/app.deltaTime)*.02
+            self.body.angular_velocity *= .95
 
         self.body.velocity = self.body.velocity.x, max(self.body.velocity.y, -self.gravityLimit)
 
@@ -299,6 +304,8 @@ class Player(PhysicsObject):
             self.gravityLimit = self.normalGravityLimit
         else:
             self.imageIndex = 3 if self.body.velocity.y > 50 else 4
+        
+        self.imageIndex = 2 if self.dashTick < self.dashDuration else self.imageIndex
 
         if self.crouch and self.chara.b == (0, 100):
             self.chara.unsafe_set_endpoints(self.chara.a, (0, 65))
