@@ -54,10 +54,12 @@ class App:
         self.Player = Player(self)
         self.EnemyHandler = EnemyHandler(self)
         self.Camera = Camera(self)
-        self.background = pygame.image.load("res/img/bg.png")
-        self.logo = pygame.transform.scale(pygame.image.load("res/img/rageon.png"), (1280, 500))
-        self.play = pygame.transform.scale(pygame.image.load("res/img/UI_play.png"), (500, 200))
-        self.background.convert()
+        self.bgSize = Vector2(2964, 1080)*self.Camera.maxFov
+        self.bgRect = Rect(0, 0, self.bgSize.x, self.bgSize.y)
+        self.background = pygame.transform.smoothscale(pygame.image.load("res/img/bg.png").convert(), self.bgSize)
+
+        self.logo = pygame.transform.smoothscale(pygame.image.load("res/img/rageon.png"), (1280, 500))
+        self.play = pygame.transform.smoothscale(pygame.image.load("res/img/UI_play.png"), (500, 200))
         self.logo.convert()
         self.play.convert()
         self.logoRect = self.logo.get_rect()
@@ -80,6 +82,7 @@ class App:
 
     def retry(self):
         self.Player.body.position = 0,0
+        self.Player.body.angle = 0
         self.Player.body.angular_velocity = 0
         self.Camera.xScrollPos = 0
         self.Player.stun(0.4)
@@ -104,7 +107,15 @@ class App:
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_u:
                         self.retry()
-            self.Player.event(event)
+            if self.gaming:
+                self.Player.event(event)
+            else:
+                match event.type:
+                    case pygame.KEYDOWN:
+                        match event.key:
+                            case pygame.K_SPACE:
+                                self.gaming = True
+
             #self.Baseplate.event(event)
 
     def convertCoordinates(self, point):
@@ -142,6 +153,8 @@ class App:
     def render(self):
         #self.Baseplate.render()
         self.screen.fill((66, 68, 87))
+        self.bgRect.center = Vector2(((-self.Player.body.position.x)%self.bgSize.x)-self.bgSize.x/2, self.screenSize.y/2)
+        self.screen.blit(self.background, ((-self.Player.body.position.x)%self.bgSize.x, 0))
         self.Player.render()
         self.EnemyHandler.render()
         self.LevelLoader.render()
@@ -150,7 +163,7 @@ class App:
         if self.realScreenSize.y > size[1]:
             size = (self.realScreenSize.y / 9 * 16, self.realScreenSize.y)
         
-        screen_scaled = pygame.transform.smoothscale(self.screen, size)
+        screen_scaled = pygame.transform.scale(self.screen, size)
         self.screenRect = screen_scaled.get_rect(center=self.realScreenSize/2)
         self.realScreen.blit(screen_scaled, self.screenRect)
         
@@ -159,20 +172,14 @@ class App:
             screen = self.screen
             self.realScreenSize = Vector2(display.get_window_size())
 
-            if self. gaming:
-                self.events()
-                self.update()
-                self.render()
+            
+            self.events()
+            self.update()
+            self.render()
 
             if not self.gaming:
                 self.realScreen.blit(self.logo, self.logoRect)
                 self.realScreen.blit(self.play, self.playRect)
-                for event in pygame.event.get():
-                    match event.type:
-                        case pygame.KEYDOWN:
-                            match event.key:
-                                case pygame.K_SPACE:
-                                    self.gaming = True
 
           
 

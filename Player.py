@@ -32,8 +32,8 @@ class Player(PhysicsObject):
     mask = pymunk.ShapeFilter(mask=pymunk.ShapeFilter.ALL_MASKS()^PLAYER_CATEGORY)
     maxAngularVelocity = math.pi*2.5
 
-    stabilisationForce = 10000
-    stabilisationDampening = Vec2d(1, 8)
+    stabilisationForce = 11000
+    stabilisationDampening = Vec2d(1, 20)
 
     leftRayOffset = Vec2d(-35,0)
     rightRayOffset = Vec2d(35,0)
@@ -45,11 +45,11 @@ class Player(PhysicsObject):
 
     moveForce = 4000
 
-    jumpForce = 120000
+    jumpForce = 80000
     crouchJumpMultiplier = 1.1
 
     jumpingCooldown = .3
-    airControlCooldown = .02
+    airControlCooldown = .1
 
     dashCooldown = .5
     dashDuration = .3
