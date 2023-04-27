@@ -3,6 +3,7 @@ import pygame, pymunk
 import pygame.display as display
 import pymunk.pygame_util
 from pymunk.vec2d import Vec2d
+import pygame.mixer as mixer
 
 import pygame.draw as draw
 import pygame.font as font
@@ -53,11 +54,30 @@ class App:
         self.Player = Player(self)
         self.EnemyHandler = EnemyHandler(self)
         self.Camera = Camera(self)
-        self.Background = pygame.image.load("res/img/bg.png")
         self.startScreen = pygame.image.load("res/img/rageon.png")
 
-        self.LevelLoader = LevelLoader(self, "Level #3.json")
+        self.LevelLoader = LevelLoader(self, "Level #5.json")
         self.LevelLoader.loadSave()
+
+        self.Background = load("res/img/bg.png")
+
+        mixer.init()
+        mixer.music.load("res/music.mp3")
+        mixer.music.play()
+        mixer.music.set_volume(0.1)
+
+    def retry(self):
+        self.Player.body.position = 0,0
+        self.Player.body.angular_velocity = 0
+        self.Camera.xScrollPos = 0
+        self.Player.stun(0.4)
+        for bullet in self.EnemyHandler.Bullets:
+            self.space.remove(bullet.body, bullet.boundingBox)
+        for enemy in self.EnemyHandler.Enemies:
+            self.space.remove(enemy.body, enemy.boundingBox)
+        self.EnemyHandler.Bullets.clear()
+        self.LevelLoader.spawnEnemies()
+        mixer.music.play()
 
     def events(self):
         global pointlist
@@ -66,6 +86,9 @@ class App:
             match event.type:
                 case pygame.QUIT:
                     self.running = False
+                case pygame.KEYDOWN:
+                    if event.key == pygame.K_u:
+                        self.retry()
             self.Player.event(event)
             #self.Baseplate.event(event)
 
@@ -74,7 +97,6 @@ class App:
 
         x -= self.cameraOffset[0]
         y -= self.screenSize.y-self.cameraOffset[1]
-
         return x, y
     
     def convertCoordinatesFromScreen(self, point):
@@ -103,9 +125,8 @@ class App:
             self.screenSize = Vector2(self.screen.get_size())
     
     def render(self):
-        self.screen.fill('white')
-        #self.screen.blit(self.Background, (0,0))
         #self.Baseplate.render()
+        self.screen.fill((66, 68, 87))
         self.Player.render()
         self.EnemyHandler.render()
         self.LevelLoader.render()

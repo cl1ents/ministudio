@@ -9,10 +9,15 @@ import pygame.draw as draw
 import pygame.transform as transform
 from pygame import Vector2
 from pygame import Rect
+from pygame.mouse import get_pos as mouse_pos
+from pygame.mouse import get_pressed as mouse_buttons
 
 import pymunk
 from pymunk import Poly
 from pymunk.vec2d import Vec2d
+
+from EnemyHandler import Bullet
+from random import randint
 
 import math
 
@@ -49,6 +54,12 @@ class Player(PhysicsObject):
     dashCooldown = .5
     dashDuration = .3
     dashVelocity = 1500
+    
+    shootCooldown = 1
+    bulletSpeed = 1800
+    bulletSize = 15
+    bulletHitAcceleration = 0.2
+    bulletBounceSpeedGain = 0.3
 
     normalGravityLimit = 2000
     glidingGravityLimit = 200
@@ -94,6 +105,9 @@ class Player(PhysicsObject):
 
         self.onGround = False
         
+        # Shoot
+        #self.shootTick = 0
+
         # Render
         self.boundingBox = pygame.Surface((100, 10), pygame.SRCALPHA)
         self.boundingBox.fill("Red")
@@ -127,6 +141,8 @@ class Player(PhysicsObject):
                         case pygame.K_SPACE:
                             self.jump(True)
                         case pygame.K_z:
+                            self.dash()
+                        case pygame.K_LSHIFT:
                             self.dash()
                         case pygame.K_q:
                             self.moveVector.x -= 1
@@ -203,6 +219,8 @@ class Player(PhysicsObject):
         distanceMultiplication = (self.rayAlphaCrouch if self.crouch else self.rayAlpha) + math.sin(app.time*3)*.075
         jumpMultiplier = self.crouchJumpMultiplier if self.crouch else 1
         
+        #self.shoot()
+
         # leftDip = self.moveVector.x > 0
         self.debugLines = []
         # Left ray
@@ -230,7 +248,6 @@ class Player(PhysicsObject):
             self.dashDirection = (app.convertCoordinatesFromScreen(pygame.mouse.get_pos())-self.body.position).normalized()
             self.body.velocity *= .6
             self.body.velocity += self.dashDirection*self.dashVelocity
-        
         
         self.debugLines.append([self.body.position, self.body.position+self.dashDirection*100])
 
@@ -357,3 +374,14 @@ class Player(PhysicsObject):
         
         self.rect = self.image.get_rect(center=self.rect.center)
         app.screen.blit(self.image, self.rect)
+
+    # def shoot(self):
+    #     self.shootTick += self.app.deltaTime
+    #     position = self.hoverboard.body.position
+
+    #     dir = Vector2(self.app.convertCoordinates(mouse_pos()) - Vector2(position.x, position.y))
+    #     if self.shootTick >= self.shootCooldown and mouse_buttons()[0]:
+    #         self.shootTick = 0
+            
+    #         bullet = Bullet(self.app, position + dir * 180, self.bulletSize, self.bulletSpeed, dir, self.bulletHitAcceleration, randint(1, 8), self.bulletBounceSpeedGain)
+    #         self.app.EnemyHandler.Bullets.append(bullet)

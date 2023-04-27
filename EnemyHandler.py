@@ -41,6 +41,9 @@ class Bullet(PhysicsObject):
         self.playerCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_BULLET)
         self.playerCollisionHandler.begin = self.playerCollisionBegin
 
+        self.enemyCollisionHandler = app.space.add_collision_handler(COLLTYPE_ENEMY, COLLTYPE_BULLET)
+        self.enemyCollisionHandler.begin = self.enemyCollisionBegin
+
         self.envCollisionHandler = app.space.add_collision_handler(COLLTYPE_ENV, COLLTYPE_BULLET)
         self.envCollisionHandler.begin = self.envCollisionBegin
 
@@ -63,7 +66,12 @@ class Bullet(PhysicsObject):
     def playerCollisionBegin(self, arbiter, space, data) -> bool:
         self.app.Player.stun(.25)
         self.lifetime = self.maxLifeTime
+        self.app.retry()
         return True
+
+    def enemyCollisionBegin(self, arbiter:Arbiter, space, data):
+        self.lifetime = self.maxLifeTime
+        return False
 
     def envCollisionBegin(self, arbiter:Arbiter, space, data)->bool:
         if self.bounces >= self.maxBounces:
@@ -103,11 +111,26 @@ class Enemy(PhysicsObject):
         self.boundingBox.filter = ShapeFilter(categories = ENEMY_CATEGORY)
         self.app.space.add(self.body, self.boundingBox)
 
-        self.enemyCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_ENEMY)
+        self.playerCollisionHandler = app.space.add_collision_handler(COLLTYPE_PLAYER, COLLTYPE_ENEMY)
+        self.playerCollisionHandler.begin = self.playerCollideBegin
+
+        self.bulletCollisionHandler = app.space.add_collision_handler(COLLTYPE_ENEMY, COLLTYPE_BULLET)
+        self.bulletCollisionHandler.begin = self.bulletCollisionBegin
 
         # Behaviour:
         self.config = config
         self.lastAttackTime = time.time() - (1 / self.config.attackRate)
+
+    def playerCollideBegin(self, arbiter:Arbiter, space, data):
+        if self.app.Player.body.velocity.get_distance((0,0)) >= 2000:
+            self.dead = True
+            self.app.Player.dashTick = 0
+        else: self.app.retry()
+        return False
+
+    def bulletCollisionBegin(self, arbiter:Arbiter, space, data):
+        self.dead = True
+        return False
 
     def update(self)->None:
         self.body.velocity = Vec2d(0,0)

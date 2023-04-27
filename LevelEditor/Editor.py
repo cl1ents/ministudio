@@ -19,7 +19,7 @@ from editor_constants import *
 from editor_helpers import clamp
 from Button import Button
 
-CW_SAVE = "Level #3.json"
+CW_SAVE = "Level #5.json"
 
 class Editor:
     enemy_types_images = ["enemyA.png", "enemyB.png", "enemyC.png", "enemyD.png"]

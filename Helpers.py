@@ -22,6 +22,7 @@ def clamp01(num):
     return clamp(num, 0, 1)
 
 def reflect(inDirection:Vec2d, inNormal:Vec2d):
+    print(inDirection, inNormal)
     return -2 * inNormal.dot(inDirection) * inNormal + inDirection
 
 def isOffScreen(size, pos):

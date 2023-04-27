@@ -92,6 +92,7 @@ class LevelLoader:
             self.BaseLevel.createPoly(shape)
 
     def spawnEnemies(self):
+        self.app.EnemyHandler.Enemies.clear()
         for enemy in self.data['enemies']:
             config_0 = EnemyConfig()
             config_1= EnemyConfig(
