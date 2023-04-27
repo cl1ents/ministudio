@@ -268,6 +268,9 @@ class Editor:
     def physicsDraw(self):
         self.physicsStraightLines = key_pressed()[pygame.K_LSHIFT]
 
+        if key_pressed()[pygame.K_x]:
+            self.physicsPoints[self.physicsDrawIndex] = []
+            print("LOL!")
         if mouse_buttons()[0] and not self.clicked:
             self.clicked = True
             if key_pressed()[pygame.K_LCTRL]:
@@ -402,9 +405,9 @@ class Editor:
                     rect = draw.polygon(physicsSurf, Color(255,0,0), offsetPointCloud)
             physicsSurf.set_alpha(155)
 
+            mousePoint = (vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor)
             if len(self.physicsPoints[self.physicsDrawIndex]) >= 1 and self.physicsStraightLines:
                 point = vector(self.physicsPoints[self.physicsDrawIndex][len(self.physicsPoints[self.physicsDrawIndex])-1])
-                mousePoint = (vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor)
 
                 localPoint = mousePoint-point
                 if abs(localPoint.x) > abs(localPoint.y):
@@ -415,11 +418,14 @@ class Editor:
                 draw.circle(physicsSurf, 'red', self.origin + mousePoint  * self.zoomFactor, 10)
 
 
-            if len(self.physicsPoints[self.physicsDrawIndex]) > 2:
+            if len(self.physicsPoints[self.physicsDrawIndex]) > 1:
                 pointCloud = self.physicsPoints[self.physicsDrawIndex]
                 offsetPointCloud = []
                 for point in pointCloud:
                     offsetPointCloud.append(self.origin + vector(point)  * self.zoomFactor)
+                
+                offsetPointCloud.append(self.origin + mousePoint  * self.zoomFactor)
+
                 rect = draw.polygon(physicsSurf, Color(255,255,0), offsetPointCloud)
 
             self.displaySurface.blit(physicsSurf, (0,0))

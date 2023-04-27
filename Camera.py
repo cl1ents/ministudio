@@ -32,8 +32,6 @@ class Camera:
         app = self.app
         player = app.Player
 
-
-
         self.xScrollPos = max(self.xScrollPos + (self.scrollSpeed * app.gaming) * self.app.deltaTime, player.body.position.x)
 
         scrollPos = Vec2d(self.xScrollPos, player.body.position.y)
@@ -43,7 +41,8 @@ class Camera:
         self.goal = Vec2d(position.x, position.y+app.screenSize.y/4)
         self.goal += Vec2d(player.body.velocity.x * .2, player.body.velocity.y * .01)
         self.position = Vec2d(self.position.x+(self.goal.x-self.position.x)*min(self.app.deltaTime*15, 1), self.position.y+(self.goal.y-self.position.y)*min(self.app.deltaTime*10, 1))
-        self.fovGoal = self.CalculateFOV(int(player.body.velocity.get_distance((0,0))))
+        
+        self.fovGoal = self.CalculateFOV(int(Vec2d(player.body.velocity.x, player.body.velocity.y*1).get_distance((0,0))))
         
         app.fovScale = app.fovScale + (self.fovGoal-app.fovScale)*min(self.app.deltaTime*6, 1)
         #targetVelocity = 

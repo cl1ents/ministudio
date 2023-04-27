@@ -58,9 +58,9 @@ class App:
         self.bgRect = Rect(0, 0, self.bgSize.x, self.bgSize.y)
         self.background = pygame.transform.smoothscale(pygame.image.load("res/img/bg.png").convert(), self.bgSize)
 
-        self.logo = pygame.transform.smoothscale(pygame.image.load("res/img/rageon.png"), (1280, 500))
+        self.logo = pygame.image.load("res/img/rageon.png").convert_alpha()
         self.play = pygame.transform.smoothscale(pygame.image.load("res/img/UI_play.png"), (500, 200))
-        self.logo.convert()
+        self.logo = pygame.transform.smoothscale(self.logo, Vector2(self.logo.get_size())*.5)
         self.play.convert()
         self.logoRect = self.logo.get_rect()
         self.playRect = self.play.get_rect()
@@ -153,8 +153,10 @@ class App:
     def render(self):
         #self.Baseplate.render()
         self.screen.fill((66, 68, 87))
-        self.bgRect.center = Vector2(((-self.Player.body.position.x)%self.bgSize.x)-self.bgSize.x/2, self.screenSize.y/2)
-        self.screen.blit(self.background, ((-self.Player.body.position.x)%self.bgSize.x, 0))
+
+        self.bgRect.center = Vector2(((-self.Player.body.position.x/5)%self.bgSize.x), self.screenSize.y/2)
+        self.screen.blit(self.background, (self.bgRect.x, self.bgRect.y))
+        self.screen.blit(self.background, (self.bgRect.x-self.bgSize.x, self.bgRect.y))
         self.Player.render()
         self.EnemyHandler.render()
         self.LevelLoader.render()
@@ -178,7 +180,10 @@ class App:
             self.render()
 
             if not self.gaming:
-                self.realScreen.blit(self.logo, self.logoRect)
+                logo = pygame.transform.scale(self.logo, Vector2(self.logo.get_size())*.5)
+                logoRect = logo.get_rect()
+                logoRect.center = self.realScreenSize/2
+                self.realScreen.blit(logo, logoRect)
                 self.realScreen.blit(self.play, self.playRect)
 
           

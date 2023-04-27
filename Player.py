@@ -33,7 +33,7 @@ class Player(PhysicsObject):
     maxAngularVelocity = math.pi*2.5
 
     stabilisationForce = 11000
-    stabilisationDampening = Vec2d(1, 20)
+    stabilisationDampening = Vec2d(.8, 20)
 
     leftRayOffset = Vec2d(-35,0)
     rightRayOffset = Vec2d(35,0)
@@ -169,6 +169,11 @@ class Player(PhysicsObject):
                             self.setCrouch(False)
                         case pygame.K_a:
                             self.setGlide(False)
+                case pygame.MOUSEBUTTONDOWN:
+                    match event.button:
+                        case 3:
+                            self.dash()
+
 
     def debug_event(self, event):
         match event.type:
