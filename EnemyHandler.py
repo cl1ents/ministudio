@@ -166,7 +166,6 @@ class Enemy(PhysicsObject):
         dir = (self.app.Player.body.local_to_world(self.app.Player.body.center_of_gravity) - self.body.position).normalized()
         bullet = Bullet(self.app, self.body.position + dir * 70, self.config.bulletSize, dir, self.config.bulletSpeed, 1.6, random.randint(1, 8), self.config.bounceSpeedGain)
         self.app.EnemyHandler.Bullets.append(bullet)
-        print(len(self.app.EnemyHandler.Bullets))
 
     def getAttackCooldown(self)->float:
         return 1 / self.config.attackRate

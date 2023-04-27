@@ -16,6 +16,7 @@ from Camera import Camera
 from EnemyHandler import EnemyHandler
 from Baseplate import Baseplate
 from constants import *
+from Button import Button
 
 from LevelLoader import LevelLoader
 
@@ -58,14 +59,12 @@ class App:
         self.bgRect = Rect(0, 0, self.bgSize.x, self.bgSize.y)
         self.background = pygame.transform.smoothscale(pygame.image.load("res/img/bg.png").convert(), self.bgSize)
 
-        self.logo = pygame.transform.smoothscale(pygame.image.load("res/img/rageon.png"), (1280, 500))
-        self.play = pygame.transform.smoothscale(pygame.image.load("res/img/UI_play.png"), (500, 200))
+        self.logo = pygame.transform.smoothscale(pygame.image.load("res/img/rageon.png"), (self.screenSize))
+        self.playButton = Button("res/img/UI_play.png", (self.screenSize * 0.5))
+        self.playButton.rect.center = Vector2(self.playButton.sprite.get_size()) * 0.5
+        self.playButton.bind(self.play)
         self.logo.convert()
-        self.play.convert()
         self.logoRect = self.logo.get_rect()
-        self.playRect = self.play.get_rect()
-        self.playRect.center = 640, 600
-
 
         self.LevelLoader = LevelLoader(self, "Level #5.json")
         self.LevelLoader.loadSave()
@@ -79,6 +78,9 @@ class App:
             mixer.music.set_volume(0.1)
         except:
             pass
+
+    def play(self):
+        self.gaming = True
 
     def retry(self):
         self.Player.body.position = 0,0
@@ -114,7 +116,7 @@ class App:
                     case pygame.KEYDOWN:
                         match event.key:
                             case pygame.K_SPACE:
-                                self.gaming = True
+                                self.play()
 
             #self.Baseplate.event(event)
 
@@ -179,7 +181,7 @@ class App:
 
             if not self.gaming:
                 self.realScreen.blit(self.logo, self.logoRect)
-                self.realScreen.blit(self.play, self.playRect)
+                self.playButton.draw()
 
           
 
