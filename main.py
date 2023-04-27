@@ -70,10 +70,13 @@ class App:
 
         self.Background = load("res/img/bg.png")
 
-        mixer.init()
-        mixer.music.load("res/music.mp3")
-        mixer.music.play()
-        mixer.music.set_volume(0.1)
+        try:
+            mixer.init()
+            mixer.music.load("res/music.mp3")
+            mixer.music.play()
+            mixer.music.set_volume(0.1)
+        except:
+            pass
 
     def retry(self):
         self.Player.body.position = 0,0
@@ -86,7 +89,10 @@ class App:
             self.space.remove(enemy.body, enemy.boundingBox)
         self.EnemyHandler.Bullets.clear()
         self.LevelLoader.spawnEnemies()
-        mixer.music.play()
+        try:
+            mixer.music.play()
+        except:
+            pass
 
     def events(self):
         global pointlist
