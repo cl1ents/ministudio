@@ -145,6 +145,7 @@ class Enemy(PhysicsObject):
                 if plrRay and not enemyRay:
                     self.lastAttackTime = time.time()
                     self.perform()
+                    print("ATTACKING")
         elif (distanceToPlayer <= self.config.sightDistance):
             plrRay = self.app.space.segment_query_first(self.body.position, self.app.Player.body.position, self.size, self.app.Player.mask)
             if plrRay:
