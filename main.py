@@ -1,4 +1,4 @@
-import pygame, pymunk
+import pygame, pymunk, time
 
 import pygame.display as display
 import pymunk.pygame_util
@@ -51,7 +51,6 @@ class App:
         self.running = True
         self.gaming = False
         
-        #self.Baseplate = Baseplate(self)
         self.Player = Player(self)
         self.EnemyHandler = EnemyHandler(self)
         self.Camera = Camera(self)
@@ -61,11 +60,12 @@ class App:
 
         self.logo = pygame.image.load("res/img/rageon.png").convert_alpha()
         self.logo = pygame.transform.smoothscale(self.logo, Vector2(self.logo.get_size())*.5)
-        self.play = pygame.transform.smoothscale(pygame.image.load("res/img/UI_play.png"), (500, 200))
-        self.playButton = Button("res/img/UI_play.png", (self.screenSize * 0.5))
-        self.playButton.rect.center = Vector2(self.playButton.sprite.get_size()) * 0.5
+        self.playButton = Button("res/img/UI_play.png", Rect(self.realScreenSize.x * 0.5, self.realScreenSize.y * 0.5,1197,348))
+        self.playButton.realSprite = self.playButton.sprite
         self.playButton.bind(self.play)
         self.logoRect = self.logo.get_rect()
+
+        self.startTime = 0
 
         self.LevelLoader = LevelLoader(self, "Level #5.json")
         self.LevelLoader.loadSave()
@@ -81,7 +81,9 @@ class App:
             pass
 
     def play(self):
-        self.gaming = True
+        if not self.gaming:
+            self.gaming = True
+            self.startTime = self.time
 
     def retry(self):
         self.Player.body.position = 0,0
@@ -110,14 +112,10 @@ class App:
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_u:
                         self.retry()
+                case pygame.K_SPACE:
+                    self.play()
             if self.gaming:
                 self.Player.event(event)
-            else:
-                match event.type:
-                    case pygame.KEYDOWN:
-                        match event.key:
-                            case pygame.K_SPACE:
-                                self.play()
 
             #self.Baseplate.event(event)
 
@@ -174,7 +172,6 @@ class App:
         
     def run(self):
         while self.running:
-            screen = self.screen
             self.realScreenSize = Vector2(display.get_window_size())
 
             
@@ -183,19 +180,20 @@ class App:
             self.render()
 
             if not self.gaming:
-                self.realScreen.blit(self.logo, self.logoRect)
-                self.realScreen.blit(self.play, self.playRect)
-
-          
-
-            # self.surf.fill("White")
-            # self.space.debug_draw(self.options)
-            # self.screen.blit(self.surf, (0,0))
+                logo = pygame.transform.scale(self.logo, Vector2(self.logo.get_size())*.5)
+                logoRect = logo.get_rect()
+                logoRect.center = self.realScreenSize/2
+                self.realScreen.blit(logo, logoRect)
+                self.playButton.sprite = pygame.transform.scale(self.playButton.realSprite, Vector2(self.playButton.realSprite.get_size())*.25)
+                self.playButton.dest = self.playButton.sprite.get_rect(center = Vector2(self.realScreenSize.x/2, self.realScreenSize.y*.8))
+                self.playButton.draw()
+            else:
+                self.realScreen.blit(self.comicsans.render(time.strftime("%M:%S", time.gmtime(self.time-self.startTime)), False, 'White'), (0,0))
             
             # Dump screen
             display.flip()
 
-            self.deltaTime = self.clock.tick(FPS) / 1000  # limits FPS to 60
+            self.deltaTime = self.clock.tick(FPS) / 1000
             self.time += self.deltaTime
 
 if __name__ == "__main__":

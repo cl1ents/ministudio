@@ -66,7 +66,6 @@ class BaseLevel(PhysicsObject): # SANDBOX!
                 pos = self.app.convertCoordinates(i)
                 polyToDraw.append(pos)
                 offscreenCount += isOffScreen(self.app.screenSize, pos)
-            print(offscreenCount)
             draw.polygon(self.app.screen, poly.color, polyToDraw)
         # draw.rect(self.app.screen, "Blue", self.getRect())
 

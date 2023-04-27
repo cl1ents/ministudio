@@ -3,11 +3,12 @@ import pygame.draw as draw
 from pygame.mouse import get_pressed as mouse_buttons
 from pygame.mouse import get_pos as mouse_pos
 from pygame.image import load
+from pygame import Rect
 
 class Button:
-    def __init__(self, imgPath:str, dest:tuple=(0,0))->None:
+    def __init__(self, imgPath:str, dest:Rect=Rect(0, 0, 100, 100))->None:
         self.displaySurf = pygame.display.get_surface()
-        self.sprite = pygame.transform.scale(load(imgPath).convert_alpha(), (256/2,128/2))
+        self.sprite = load(imgPath).convert_alpha()
         self.dest = dest
         self.on_click = None
         self.previously_clicked = False

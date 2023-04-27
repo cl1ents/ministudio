@@ -358,7 +358,9 @@ class Editor:
             for i in range(len(self.enemies)):
                 enemy = self.enemies[i]
                 rect = Rect(enemy['position'], (vector(1,1) * DEFAULT_TILE_SIZE))
-                if rect.collidepoint(mouse_pos()):
+                print(rect)
+                print((vector(mouse_pos()) - self.origin - vector(DEFAULT_TILE_SIZE) * 0.5) * (1 / self.zoomFactor))
+                if rect.collidepoint((vector(mouse_pos()) - self.origin - vector(DEFAULT_TILE_SIZE) * 0.5) * (1 / self.zoomFactor)):
                     self.lastDraw = time.time()
                     del self.enemies[i]
                     break
