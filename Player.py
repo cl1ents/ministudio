@@ -152,6 +152,11 @@ class Player(PhysicsObject):
                             self.setCrouch(True)
                         case pygame.K_a:
                             self.setGlide(True)
+                        case pygame.K_r:
+                            self.body.position = Vec2d(0, 1) #self.app.convertCoordinates(pygame.mouse.get_pos())
+                            self.body.angle = 0
+                            self.body.angular_velocity = 0
+                            self.body.velocity = (0, 0)
                 case pygame.KEYUP:
                     match event.key:
                         case pygame.K_SPACE:
