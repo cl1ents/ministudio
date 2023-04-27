@@ -145,7 +145,6 @@ class Enemy(PhysicsObject):
                 if plrRay and not enemyRay:
                     self.lastAttackTime = time.time()
                     self.perform()
-                    print("ATTACKING")
         elif (distanceToPlayer <= self.config.sightDistance):
             plrRay = self.app.space.segment_query_first(self.body.position, self.app.Player.body.position, self.size, self.app.Player.mask)
             if plrRay:
@@ -165,7 +164,7 @@ class Enemy(PhysicsObject):
     def perform(self)->None:
         # offset = Vec2d(0, 175/2)
         dir = (self.app.Player.body.local_to_world(self.app.Player.body.center_of_gravity) - self.body.position).normalized()
-        bullet = Bullet(self.app, self.body.position, self.config.bulletSize, dir, self.config.bulletSpeed, 1.6, random.randint(1, 8), self.config.bounceSpeedGain)
+        bullet = Bullet(self.app, self.body.position + dir * 70, self.config.bulletSize, dir, self.config.bulletSpeed, 1.6, random.randint(1, 8), self.config.bounceSpeedGain)
         self.app.EnemyHandler.Bullets.append(bullet)
 
     def getAttackCooldown(self)->float:

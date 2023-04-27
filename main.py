@@ -16,6 +16,7 @@ from Camera import Camera
 from EnemyHandler import EnemyHandler
 from Baseplate import Baseplate
 from constants import *
+from Button import Button
 
 from LevelLoader import LevelLoader
 
@@ -59,13 +60,12 @@ class App:
         self.background = pygame.transform.smoothscale(pygame.image.load("res/img/bg.png").convert(), self.bgSize)
 
         self.logo = pygame.image.load("res/img/rageon.png").convert_alpha()
-        self.play = pygame.transform.smoothscale(pygame.image.load("res/img/UI_play.png"), (500, 200))
         self.logo = pygame.transform.smoothscale(self.logo, Vector2(self.logo.get_size())*.5)
-        self.play.convert()
+        self.play = pygame.transform.smoothscale(pygame.image.load("res/img/UI_play.png"), (500, 200))
+        self.playButton = Button("res/img/UI_play.png", (self.screenSize * 0.5))
+        self.playButton.rect.center = Vector2(self.playButton.sprite.get_size()) * 0.5
+        self.playButton.bind(self.play)
         self.logoRect = self.logo.get_rect()
-        self.playRect = self.play.get_rect()
-        self.playRect.center = 640, 600
-
 
         self.LevelLoader = LevelLoader(self, "Level #5.json")
         self.LevelLoader.loadSave()
@@ -79,6 +79,9 @@ class App:
             mixer.music.set_volume(0.1)
         except:
             pass
+
+    def play(self):
+        self.gaming = True
 
     def retry(self):
         self.Player.body.position = 0,0
@@ -114,7 +117,7 @@ class App:
                     case pygame.KEYDOWN:
                         match event.key:
                             case pygame.K_SPACE:
-                                self.gaming = True
+                                self.play()
 
             #self.Baseplate.event(event)
 
@@ -180,10 +183,7 @@ class App:
             self.render()
 
             if not self.gaming:
-                logo = pygame.transform.scale(self.logo, Vector2(self.logo.get_size())*.5)
-                logoRect = logo.get_rect()
-                logoRect.center = self.realScreenSize/2
-                self.realScreen.blit(logo, logoRect)
+                self.realScreen.blit(self.logo, self.logoRect)
                 self.realScreen.blit(self.play, self.playRect)
 
           

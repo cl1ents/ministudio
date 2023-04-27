@@ -147,4 +147,4 @@ class LevelLoader:
             self.targetColor = self.generate_random_color()
 
     def generate_random_color(self):
-        return Color(randint(0,255),randint(0,255),randint(0,255), 255)
+        return Color(randint(100,255),randint(100,255),randint(100,255), 255)
