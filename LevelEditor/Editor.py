@@ -19,7 +19,7 @@ from editor_constants import *
 from editor_helpers import clamp
 from Button import Button
 
-CW_SAVE = "Level #3.json"
+CW_SAVE = "Level #4.json"
 
 class Editor:
     enemy_types_images = ["enemyA.png", "enemyB.png", "enemyC.png", "enemyD.png"]
@@ -47,6 +47,7 @@ class Editor:
         self.physicsEnabled = False
         self.physicsPoints = [[]]
         self.physicsDrawIndex = 0
+        self.physicsStraightLines = False
         
         self.offGridEnabled = False
         self.offGridElements = []
@@ -57,6 +58,8 @@ class Editor:
 
         self.drawDelay = 0.2
         self.lastDraw = time.time() - self.drawDelay
+
+        self.originSprite = load("./res/img/idle.png").convert_alpha()
 
         # Buttons
         self.saveButton = Button("res/img/btn/save_button.png", (30,50))
@@ -73,6 +76,8 @@ class Editor:
 
         self.enemiesButton = Button("res/img/btn/enemies_button.png", (30, 350))
         self.enemiesButton.bind(self.enableEnemies)
+
+        self.playerSprite = load("res/img/idle.png").convert_alpha()
         
         self.loadSave()
 
@@ -261,6 +266,8 @@ class Editor:
         self.displaySurface.blit(self.supportLinesSurf, (0,0))
     
     def physicsDraw(self):
+        self.physicsStraightLines = key_pressed()[pygame.K_LSHIFT]
+
         if mouse_buttons()[0] and not self.clicked:
             self.clicked = True
             if key_pressed()[pygame.K_LCTRL]:
@@ -268,7 +275,17 @@ class Editor:
                     self.physicsDrawIndex += 1
                     self.physicsPoints.append([])
                     print("New Physics Shape")
-            self.physicsPoints[self.physicsDrawIndex].append((vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor))
+            else:
+                mousePoint = (vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor)
+                if len(self.physicsPoints[self.physicsDrawIndex]) >= 1 and self.physicsStraightLines:
+                    point = vector(self.physicsPoints[self.physicsDrawIndex][len(self.physicsPoints[self.physicsDrawIndex])-1])
+
+                    localPoint = mousePoint-point
+                    if abs(localPoint.x) > abs(localPoint.y):
+                        mousePoint = vector(mousePoint.x, point.y)
+                    elif abs(localPoint.y) > abs(localPoint.x):
+                        mousePoint = vector(point.x, mousePoint.y)
+                self.physicsPoints[self.physicsDrawIndex].append(mousePoint)
         elif not mouse_buttons()[0]:
             self.clicked = False
         if mouse_buttons()[2]:
@@ -289,12 +306,13 @@ class Editor:
                     self.physicsDrawIndex -= 1
                     print("Successfully removed!")
                     break
+        
     
     def gridDraw(self):
         if mouse_buttons()[0]:
             self.tiles[self.getCurrentCell()] = {
-                'surf': load('res/img/capybara.png').convert_alpha(),
-                'path': 'res/img/capybara.png',
+                'surf': load('res/img/enemyA.png').convert_alpha(),
+                'path': 'res/img/enemyA.png',
                 'tiling': self.tileSize
             }
         if mouse_buttons()[2]: # Right click
@@ -306,11 +324,11 @@ class Editor:
         if time.time() - self.lastDraw < self.drawDelay: return
         if mouse_buttons()[0]:
             self.lastDraw = time.time()
-            loaded_surf = load('res/img/capybara.png').convert_alpha()
-            rescaled = transform.scale(loaded_surf, vector(loaded_surf.get_size()) * self.zoomFactor)
+            loaded_surf = load('res/img/enemyA.png').convert_alpha()
+            rescaled = transform.scale(loaded_surf, vector(DEFAULT_TILE_SIZE,DEFAULT_TILE_SIZE) * self.zoomFactor)
             self.offGridElements.append({
                 'surf': loaded_surf,
-                'path': 'res/img/capybara.png',
+                'path': 'res/img/enemyA.png',
                 'position': vector(mouse_pos()) - self.origin - vector(rescaled.get_size()) * 0.5
             })
         if mouse_buttons()[2]:
@@ -358,7 +376,7 @@ class Editor:
     def drawTiles(self)->None:
         for value in self.offGridElements:
             pos = self.origin + vector(value['position']) * self.zoomFactor
-            surf = transform.scale(value['surf'], vector(value['surf'].get_size()) * self.zoomFactor)
+            surf = transform.scale(value['surf'], vector(1,1) * DEFAULT_TILE_SIZE * self.zoomFactor)
             self.displaySurface.blit(surf, pos)
         
         for key, value in self.tiles.items():
@@ -383,6 +401,27 @@ class Editor:
                         offsetPointCloud.append(self.origin + vector(point)  * self.zoomFactor)
                     rect = draw.polygon(physicsSurf, Color(255,0,0), offsetPointCloud)
             physicsSurf.set_alpha(155)
+
+            if len(self.physicsPoints[self.physicsDrawIndex]) >= 1 and self.physicsStraightLines:
+                point = vector(self.physicsPoints[self.physicsDrawIndex][len(self.physicsPoints[self.physicsDrawIndex])-1])
+                mousePoint = (vector(mouse_pos()) - self.origin) * (1 / self.zoomFactor)
+
+                localPoint = mousePoint-point
+                if abs(localPoint.x) > abs(localPoint.y):
+                    mousePoint = vector(mousePoint.x, point.y)
+                elif abs(localPoint.y) > abs(localPoint.x):
+                    mousePoint = vector(point.x, mousePoint.y)
+
+                draw.circle(physicsSurf, 'red', self.origin + mousePoint  * self.zoomFactor, 10)
+
+
+            if len(self.physicsPoints[self.physicsDrawIndex]) > 2:
+                pointCloud = self.physicsPoints[self.physicsDrawIndex]
+                offsetPointCloud = []
+                for point in pointCloud:
+                    offsetPointCloud.append(self.origin + vector(point)  * self.zoomFactor)
+                rect = draw.polygon(physicsSurf, Color(255,255,0), offsetPointCloud)
+
             self.displaySurface.blit(physicsSurf, (0,0))
     
     def run(self, dt:float)->None:
@@ -398,3 +437,8 @@ class Editor:
         self.offGridButton.draw()
         self.enemiesButton.draw()
         draw.circle(self.displaySurface, 'red', self.origin, 10)
+
+        playerSprite = pygame.transform.smoothscale(self.playerSprite, vector(175,175) * self.zoomFactor)
+        playerRect = playerSprite.get_rect(center = self.origin+vector(0,-75*self.zoomFactor))
+        self.displaySurface.blit(playerSprite, playerRect)
+        
