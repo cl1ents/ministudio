@@ -47,14 +47,22 @@ class App:
         self.deltaTime = 1/FPS
         self.time = 0
         self.running = True
-        self.menu = True
+        self.gaming = False
         
         #self.Baseplate = Baseplate(self)
         self.Player = Player(self)
         self.EnemyHandler = EnemyHandler(self)
         self.Camera = Camera(self)
-        self.Background = pygame.image.load("res/img/bg.png")
-        self.startScreen = pygame.image.load("res/img/rageon.png")
+        self.background = pygame.image.load("res/img/bg.png")
+        self.logo = pygame.transform.scale(pygame.image.load("res/img/rageon.png"), (1280, 500))
+        self.play = pygame.transform.scale(pygame.image.load("res/img/UI_play.png"), (500, 200))
+        self.background.convert()
+        self.logo.convert()
+        self.play.convert()
+        self.logoRect = self.logo.get_rect()
+        self.playRect = self.play.get_rect()
+        self.playRect.center = 640, 600
+
 
         self.LevelLoader = LevelLoader(self, "Level #3.json")
         self.LevelLoader.loadSave()
@@ -104,7 +112,7 @@ class App:
     
     def render(self):
         self.screen.fill('white')
-        #self.screen.blit(self.Background, (0,0))
+        #self.screen.blit(self.background, self.screenRect)
         #self.Baseplate.render()
         self.Player.render()
         self.EnemyHandler.render()
@@ -123,9 +131,22 @@ class App:
             screen = self.screen
             self.realScreenSize = Vector2(display.get_window_size())
 
-            self.events()
-            self.update()
-            self.render()
+            if self. gaming:
+                self.events()
+                self.update()
+                self.render()
+
+            if not self.gaming:
+                self.realScreen.blit(self.logo, self.logoRect)
+                self.realScreen.blit(self.play, self.playRect)
+                for event in pygame.event.get():
+                    match event.type:
+                        case pygame.KEYDOWN:
+                            match event.key:
+                                case pygame.K_SPACE:
+                                    self.gaming = True
+
+          
 
             # self.surf.fill("White")
             # self.space.debug_draw(self.options)
