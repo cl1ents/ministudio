@@ -112,7 +112,7 @@ class App:
     
     def render(self):
         self.screen.fill('white')
-        #self.screen.blit(self.background, self.screenRect)
+        #self.screen.blit(self.background, pygame.rect.Rect(0,0, 1280, 720))
         #self.Baseplate.render()
         self.Player.render()
         self.EnemyHandler.render()
